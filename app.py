@@ -16,8 +16,13 @@ if st.button("Run Evaluation"):
             evaluation = evaluate_response(prompt, response_agent)
 
         try:
-           clean = evaluation.strip().strip("```json").strip("```").strip()
-           data = json.loads(clean)
+            clean = evaluation.strip()
+            if clean.startswith("```"):
+                clean = clean.split("```")[1]
+                if clean.startswith("json"):
+                    clean = clean[4:]
+            data = json.loads(clean.strip())
+           
         except json.JSONDecodeError:
             st.error("Error parsing the evaluation. Here is the raw response:")
             st.code(evaluation)
