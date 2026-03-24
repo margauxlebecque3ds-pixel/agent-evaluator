@@ -17,7 +17,8 @@ if st.button("Run Evaluation"):
 
         st.write(repr(evaluation[:100]))
         try:
-            data = json.loads(evaluation)
+            from json_repair import repair_json
+            data = json.loads(repair_json(evaluation))
         except Exception as e:
             st.error(f"Erreur exacte : {type(e).__name__} — {e}")
             st.code(evaluation)
