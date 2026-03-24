@@ -16,12 +16,7 @@ if st.button("Run Evaluation"):
             evaluation = evaluate_response(prompt, response_agent)
 
         try:
-            import re
-            match = re.search(r'\{.*\}', evaluation, re.DOTALL)
-            if match:
-                data = json.loads(match.group(0))
-            else:
-                raise json.JSONDecodeError("No JSON found", evaluation, 0)
+            data = json.loads(evaluation)
            
         except json.JSONDecodeError:
             st.error("Error parsing the evaluation. Here is the raw response:")
