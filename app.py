@@ -15,7 +15,6 @@ if st.button("Run Evaluation"):
         with st.spinner("Evaluating..."):
             evaluation = evaluate_response(prompt, response_agent)
 
-        st.write(repr(evaluation[:100]))
         try:
             from json_repair import repair_json
             data = json.loads(repair_json(evaluation))
