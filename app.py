@@ -14,21 +14,12 @@ if st.button("Run Evaluation"):
     if prompt and response_agent:
         with st.spinner("Evaluating..."):
             evaluation = evaluate_response(prompt, response_agent)
-            
+
         st.write(repr(evaluation[:100]))
         try:
-            try:
-                data = json.loads(evaluation)
-            except json.JSONDecodeError:
-                import re
-                match = re.search(r'\{.*\}', evaluation, re.DOTALL)
-                if match:
-                    data = json.loads(match.group(0))
-                else:
-                    raise json.JSONDecodeError("No JSON found", evaluation, 0)
-                
-        except json.JSONDecodeError:
-            st.error("Error parsing the evaluation. Here is the raw response:")
+            data = json.loads(evaluation)
+        except Exception as e:
+            st.error(f"Erreur exacte : {type(e).__name__} — {e}")
             st.code(evaluation)
             st.stop()
 
