@@ -68,20 +68,20 @@ st.markdown("""
   .criterion-card.green  { border-left-color: #2e7d32; }
   .criterion-card.gray   { border-left-color: #444; }
 
-  .crit-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.8rem; }
-  .crit-name { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 0.95rem; color: #e0e0e0; }
-  .score-pill { font-family: 'Space Mono', monospace; font-size: 0.8rem; font-weight: 700; padding: 0.2rem 0.8rem; border-radius: 20px; }
+  .crit-header { display: flex; flex-direction: row-reverse; justify-content: flex-end; align-items: center; gap: 1rem; margin-bottom: 0.8rem; }
+  .crit-name { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 1rem; color: #e0e0e0; }
+  .score-pill { font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; padding: 0.3rem 1rem; border-radius: 20px; }
   .pill-red    { background: #2a1010; color: #e53935; }
   .pill-orange { background: #2a1a00; color: #f57c00; }
   .pill-green  { background: #0a2a0a; color: #4caf50; }
   .pill-gray   { background: #1a1a1a; color: #777; }
 
-  .crit-detail { font-family: 'Inter', sans-serif; font-size: 0.83rem; color: #666; margin-top: 0.4rem; line-height: 1.6; }
-  .crit-detail strong { color: #888; }
+  .crit-detail { font-family: 'Inter', sans-serif; font-size: 0.92rem; color: #b0b0b0; margin-top: 0.6rem; line-height: 1.7; }
+  .crit-detail strong { color: #d0d0d0; }
 
   .suggestions-box { background: #0a0f1a; border: 1px solid #1a2a4a; border-radius: 10px; padding: 1.5rem; margin-top: 2rem; }
   .suggestions-box h3 { font-family: 'Inter', sans-serif; color: #4d8bff; font-size: 1rem; margin-bottom: 1rem; }
-  .suggestions-box li { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #888; margin-bottom: 0.5rem; line-height: 1.6; }
+  .suggestions-box li { font-family: 'Inter', sans-serif; font-size: 0.92rem; color: #b0b0b0; margin-bottom: 0.5rem; line-height: 1.7; }
 
   #MainMenu, footer, header { visibility: hidden; }
   .block-container { padding-top: 0 !important; }
