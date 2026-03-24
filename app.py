@@ -14,7 +14,8 @@ if st.button("Run Evaluation"):
     if prompt and response_agent:
         with st.spinner("Evaluating..."):
             evaluation = evaluate_response(prompt, response_agent)
-
+            
+        st.write(repr(evaluation[:100]))
         try:
             try:
                 data = json.loads(evaluation)
