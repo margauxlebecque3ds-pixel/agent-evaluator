@@ -142,22 +142,19 @@ st.markdown(f"""
 """, unsafe_allow_html=True)
 
 # Navbar
-col_nav1, col_nav2 = st.columns([9, 1])
-with col_nav1:
-    st.markdown('<div style="padding:0.6rem 0 0 0;border-bottom:1px solid #1e1e1e;margin-bottom:2rem;">', unsafe_allow_html=True)
-    st.image("https://raw.githubusercontent.com/margauxlebecque3ds-pixel/agent-evaluator/master/DassaultSyst%C3%A8mesLogo.png", width=160)
-    st.markdown('</div>', unsafe_allow_html=True)
-with col_nav2:
-    st.markdown(f"""
-    <div class="lang-pills">
-      <a href="?lang=fr" target="_self" class="lang-pill lang-pill-fr">
-        <img src="{FLAG_FR}" alt="FR"/> FR
-      </a>
-      <a href="?lang=en" target="_self" class="lang-pill lang-pill-en">
-        <img src="{FLAG_ENG}" alt="EN"/> EN
-      </a>
-    </div>
-    """, unsafe_allow_html=True)
+st.markdown(f"""
+<div style="display:flex;align-items:center;justify-content:space-between;padding:0.8rem 0;border-bottom:1px solid #1e1e1e;margin-bottom:2rem;">
+  <img src="https://raw.githubusercontent.com/margauxlebecque3ds-pixel/agent-evaluator/master/DassaultSyst%C3%A8mesLogo.png" style="height:36px;width:auto;" />
+  <div class="lang-pills">
+    <a href="?lang=fr" target="_self" class="lang-pill lang-pill-fr">
+      <img src="{FLAG_FR}" alt="FR"/> FR
+    </a>
+    <a href="?lang=en" target="_self" class="lang-pill lang-pill-en">
+      <img src="{FLAG_ENG}" alt="EN"/> EN
+    </a>
+  </div>
+</div>
+""", unsafe_allow_html=True)
 
 t = T[lang]
 
