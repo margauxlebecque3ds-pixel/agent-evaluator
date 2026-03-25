@@ -26,16 +26,30 @@ def evaluate_response(prompt, response_text):
     evaluation_prompt = f"""
 You are a senior UX researcher specializing in AI agent evaluation within complex industrial software (CAD/simulation).
 
-Your task is to evaluate an AI agent's response against a heuristic framework specifically designed for AI agents in complex software environments (not simple chatbots). This framework was built upon Nielsen (1994) and extends it to AI agents.
+Your task is to evaluate an AI agent's response against a heuristic framework specifically designed for AI agents in complex software environments (not simple chatbots). This framework was built upon Nielsen (1994) and extends it to AI agents in industrial contexts.
 
 You must score each criterion using the detailed rubric below. Each score must be justified by citing specific elements observed (or absent) in the agent's response. Your justification must be at least 3 sentences and include concrete improvement advice if the score is below 5.
 
 HEURISTIC EVALUATION FRAMEWORK WITH SCORING RUBRIC
 ====================================================
 
-CRITERION 1 — Reasoning Transparency ("Why")
+CRITERION 1 — Request Adequacy (Expected Format & Content)
+The most basic check: did the agent understand what was being asked, and did it respond in the right format? Before looking at the content itself, we check whether the structure of the response actually matches what the request called for (list, definition, table, step-by-step).
+Sub-questions: Is the response in the expected format (e.g. a numbered list for steps, a table for comparisons)? Does the agent stay on topic and avoid responses that are too vague or too short to be useful? Does the response cover the full request, not just part of it? Does the structure of the answer make the key information stand out and easy to read right away?
+
+SCORING RUBRIC:
+0 — The response completely misses the request: wrong format, off-topic, or so vague it provides no value.
+1 — The response addresses the topic but in the wrong format, or covers only a small part of the request.
+2 — The response is partially adequate: right topic, partially right format, but missing significant portions of what was asked.
+3 — The response covers the main request in an acceptable format but omits some sub-questions or uses a suboptimal structure.
+4 — The response is well-structured and covers the full request. Minor format or completeness gaps possible.
+5 — Perfectly adequate: exactly the right format, covers every part of the request, key information is immediately visible and easy to read.
+
+----------------------------------------------------
+
+CRITERION 2 — Transparency of Reasoning ("Why")
 The agent must make its reasoning process visible. The user should not have to trust the AI blindly — they must be able to verify how a recommendation was produced.
-Sub-questions: Does it explain why it proposes this action? Does it reveal its sources or assumptions? Can the user trace back the origin of a recommendation?
+Sub-questions: Does it explain why it proposes this action, and in enough detail? Does it reveal its sources or assumptions? Can the user trace back the origin of a recommendation?
 
 SCORING RUBRIC:
 0 — No explanation whatsoever. The agent states a result or action with zero reasoning. Pure black box.
@@ -47,9 +61,9 @@ SCORING RUBRIC:
 
 ----------------------------------------------------
 
-CRITERION 2 — Contextual Relevance ("Where")
+CRITERION 3 — Contextual Relevance ("Where")
 The agent must adapt its response to the user's role, expertise level, and the current workflow step. A junior engineer and a senior simulation expert must not receive the same response.
-Sub-questions: Are suggestions adapted to the selected object and workflow step? Does the agent adapt vocabulary and detail level to the user's profile? Does it avoid suggesting unavailable actions or repeating known information?
+Sub-questions: Are suggestions adapted to the selected object and workflow step? Does the agent understand the user's role? Does it adapt vocabulary and level of explanation to the user's profile? Does it avoid suggesting actions that aren't available at the current step? Does it avoid repeating information the user already knows?
 
 SCORING RUBRIC:
 0 — The response is completely generic, showing no awareness of the user's context, role, or current workflow step.
@@ -61,9 +75,9 @@ SCORING RUBRIC:
 
 ----------------------------------------------------
 
-CRITERION 3 — Human Controllability (Human Intervention)
-The agent must preserve the user's ability to intervene, modify, or cancel at any point. The agent is an assistant, not an autonomous decision-maker.
-Sub-questions: Can the user interrupt or manually override a suggestion? Are these actions easy to perform mid-interaction? Is cancellation reversible and free of side effects?
+CRITERION 4 — Human Controllability (Human Intervention)
+The agent must preserve the user's ability to intervene, modify, or cancel at any point. The agent is an assistant, not a decision-maker. Trust depends on the user always feeling in control.
+Sub-questions: Can the user interrupt a calculation or manually change a suggestion? Are these actions easy to do while the agent is still generating? Is canceling an action reversible, with no side effects on the project data?
 
 SCORING RUBRIC:
 0 — The agent takes or strongly implies irreversible actions without any warning, confirmation request, or override mechanism.
@@ -75,9 +89,9 @@ SCORING RUBRIC:
 
 ----------------------------------------------------
 
-CRITERION 4 — Cognitive Load Reduction ("Less is More")
-The agent must reduce the user's mental effort, not increase it. Both over-explaining and under-explaining are penalized.
-Sub-questions: Is the interaction simpler than using classic menus? Are responses clear and proportionate? Does the agent offer summaries when the answer is complex?
+CRITERION 5 — Cognitive Load Reduction ("Less is More")
+The AI should make things simpler, not add clutter. Too much detail is just as frustrating as too little. In both cases, the user has to do extra work to get what they need.
+Sub-questions: Is interacting with the AI easier than digging through the classic menus? Does it actually simplify the task? Are responses clear and well-sized — not too long, not too short? Does it offer a summary or a condensed view when the answer is complex?
 
 SCORING RUBRIC:
 0 — The response is overwhelming (walls of text, irrelevant info) or uselessly empty. The user must do significant extra work.
@@ -89,51 +103,37 @@ SCORING RUBRIC:
 
 ----------------------------------------------------
 
-CRITERION 5 — Uncertainty Management ("Doubt")
-The agent must explicitly acknowledge the limits of its knowledge and avoid confident responses to ambiguous queries. In engineering contexts, a confidently wrong answer can cause costly errors.
-Sub-questions: Does the AI express when it lacks sufficient data? Does it ask clarifying questions? Does it associate a confidence level to its responses? Does it propose multiple interpretations?
+CRITERION 6 — Reliability & Anticipation ("Doubt & Guardrail")
+This criterion covers both uncertainty management and error prevention. The agent should admit when it is not sure, and stop actions that are impossible or harmful before they actually happen.
+Sub-questions: Does the AI ask for clarification when a request is ambiguous, instead of just guessing? Does it catch or spot physically impossible parameters or incorrect requests? Does it express a confidence level and suggest corrected alternatives? Does it think ahead and anticipate the negative consequences of an action later in the workflow?
 
 SCORING RUBRIC:
-0 — The agent responds confidently to an ambiguous or underspecified request without acknowledging any uncertainty. High hallucination risk.
-1 — The agent makes a guess without flagging it. No clarification is requested.
-2 — The agent adds a generic disclaimer ("I may be wrong") but does not reformulate the query, ask for clarification, or propose alternatives.
-3 — The agent identifies the ambiguity and either asks a clarifying question OR proposes one alternative interpretation, but not both.
-4 — The agent clearly identifies uncertainty, asks a relevant clarifying question, and offers at least one alternative interpretation.
-5 — Exemplary: explicitly flags what it does and does not know, asks targeted clarifying questions, proposes multiple interpretations, assigns explicit confidence levels.
+0 — The agent responds confidently to ambiguous requests AND executes clearly problematic actions without any warning. Maximum risk.
+1 — The agent either guesses without flagging uncertainty, OR detects a problem but only blocks without explanation. No constructive output.
+2 — The agent adds a generic disclaimer ("I may be wrong") OR flags an issue vaguely, but provides no clarification request, no corrected alternative, and no anticipation of downstream consequences.
+3 — The agent identifies ambiguity or risk and either asks a clarifying question OR proposes one alternative/correction, but not both. No anticipation of downstream effects.
+4 — The agent clearly identifies uncertainty and/or risk, asks a relevant clarifying question, and proposes a corrected alternative. Minor gaps in anticipation of downstream consequences.
+5 — Exemplary: explicitly flags uncertainty AND potential errors, asks targeted clarifying questions, proposes multiple interpretations or corrected alternatives, assigns confidence levels, and anticipates negative downstream consequences before they occur.
 
 ----------------------------------------------------
 
-CRITERION 6 — Action Segmentation ("How")
-The agent must decompose complex requests into ordered, achievable steps.
-Sub-questions: Does the AI break down a complex request into logical sub-steps? Are the steps ordered correctly and feasible? Does the agent indicate dependencies between steps?
+CRITERION 7 — Task Segmentation ("How")
+The agent must decompose complex requests into ordered, achievable steps — the way a project manager or domain expert would walk a colleague through a task.
+Sub-questions: Can the AI break down a complex request into logical sub-steps? Are the suggested steps in a coherent order and doable within the existing workflow? Does the agent point out dependencies between steps (e.g. "the mesh needs to be validated before running the simulation")?
 
 SCORING RUBRIC:
 0 — The agent provides a single undifferentiated response to a complex request, with no decomposition.
-1 — The agent lists some steps but they are unordered, incomplete, or not feasible.
+1 — The agent lists some steps but they are unordered, incomplete, or not feasible within the workflow.
 2 — The agent provides a partial step sequence but omits critical steps or fails to indicate dependencies.
 3 — The agent provides a logical sequence covering main actions, but some steps lack detail or dependency information.
 4 — Clear, ordered, actionable step sequence. Dependencies are mostly indicated. Minor gaps in completeness.
-5 — Optimal: complete, ordered sequence, explicit dependencies, checks for prerequisite conditions before each step.
+5 — Optimal: complete, ordered sequence, explicit dependencies between steps, checks for prerequisite conditions before each step.
 
 ----------------------------------------------------
 
-CRITERION 7 — Error Prevention ("The Guardrail")
-The agent must anticipate and prevent user errors before they cause damage.
-Sub-questions: Does the AI detect potentially destructive or erroneous requests? Can it identify inconsistencies with known physical or business constraints? Does it propose a corrected alternative?
-
-SCORING RUBRIC:
-0 — The agent executes or validates a clearly problematic request without any warning.
-1 — The agent detects the problem but only blocks the action without explanation or alternative.
-2 — The agent flags a potential issue vaguely with no specific guidance.
-3 — The agent identifies the specific risk and explains why it is a problem, but offers no corrected alternative.
-4 — The agent identifies the risk, explains it clearly, and proposes a corrected alternative. Minor gaps in proactivity.
-5 — Full guardrail: proactively flags the inconsistency, explains the specific constraint violated, proposes a corrected alternative, and asks for confirmation before proceeding.
-
-----------------------------------------------------
-
-CRITERION 8 — Relationship with the Interface and 3D Model
-The agent must bridge dialogue and direct 3D manipulation.
-Sub-questions: Can the user designate a 3D object as the subject of a question? Can the AI highlight zones in the 3D view? Does it maintain sync between dialogue and 3D state? Can it annotate the model?
+CRITERION 8 — Interface & 3D Model Relationship
+The AI needs to tie together the conversation and what's happening in the model. It should be able to "see" what the user selects and "show" its answers visually inside the software.
+Sub-questions: Can the user point to a 3D object as the subject of a question? Can the AI highlight important areas in the 3D view (glyphs, surfaces, mesh) and key nodes in the tree? Does the agent stay in sync between the conversation and the current state of the 3D view in real time? Can it add or edit annotations directly on the model to illustrate its response?
 NOT APPLICABLE if the response involves no 3D model interaction.
 
 SCORING RUBRIC:
@@ -141,14 +141,14 @@ SCORING RUBRIC:
 1 — Vaguely references the 3D environment but cannot interact with it or reference specific objects/zones.
 2 — Acknowledges a 3D object mentioned by the user but cannot highlight, annotate, or synchronize with the view.
 3 — Can reference selected 3D objects and describes relevant zones in text, but lacks true graphical interaction.
-4 — Can reference, describe, and partially interact with the 3D environment (e.g., suggest zones to examine).
+4 — Can reference, describe, and partially interact with the 3D environment (e.g., suggest zones to examine, reference tree nodes).
 5 — Full 3D integration: references user-selected objects, highlights or annotates relevant zones in the view, maintains real-time sync between dialogue and 3D state.
 
 ----------------------------------------------------
 
-CRITERION 9 — Interoperability (Access to Data and Project History)
-The agent must act as an expert who has read the entire project file.
-Sub-questions: Can the agent answer using data not currently visible in the interface? Does it clearly state which data source it consulted?
+CRITERION 9 — Interoperability (Data Access & Project History)
+The AI should act like an expert who has read the entire project file — not just what is currently open. It needs to pull and connect information from multiple sources (CATIA CAD model, ENOVIA requirements, internal material libraries).
+Sub-questions: Can the agent answer a request using data that is not currently open in the interface but is accessible in the system? Does the agent clearly state which data source it used to build its response?
 NOT APPLICABLE if the task requires no external data beyond what is in the prompt.
 
 SCORING RUBRIC:
@@ -162,8 +162,8 @@ SCORING RUBRIC:
 ----------------------------------------------------
 
 CRITERION 10 — Consistency Over Time ("Memory")
-The agent must remember context, decisions, and user preferences from earlier in the session.
-Sub-questions: Are responses consistent throughout the session? Does the agent remember prior information? Does it detect contradictions with earlier decisions? Does it distinguish session memory from long-term project memory?
+The AI needs to remember the engineer's preferences and decisions made earlier in the session. Without session memory, the user has to re-explain the context every time.
+Sub-questions: Do the AI's responses stay consistent throughout the session? Does the agent remember information shared earlier? Does it keep track of what the user has done and said? Can it spot a contradiction between a new request and a decision made earlier in the session, and flag it to the user? Does it tell the difference between session memory (short-term) and project memory (long-term)?
 NOT APPLICABLE if this is the first and only exchange in the session.
 
 SCORING RUBRIC:
@@ -185,12 +185,19 @@ OUTPUT FORMAT — STRICTLY VALID JSON — NO EXTRA TEXT
 
 {{
   "evaluation": {{
-    "reasoning_transparency": {{
+    "request_adequacy": {{
       "score": 0,
       "applicable": true,
       "observed_elements": "Specific elements from the response that informed this score (quote or describe them, or note their absence).",
       "justification": "At least 3 sentences explaining the score based on the rubric above.",
-      "improvement_advice": "Concrete and specific advice for the agent developer (not generic). Example: 'Add a confidence percentage after each recommendation' rather than 'be clearer'."
+      "improvement_advice": "Concrete and specific advice for the agent developer (not generic)."
+    }},
+    "transparency_of_reasoning": {{
+      "score": 0,
+      "applicable": true,
+      "observed_elements": "...",
+      "justification": "...",
+      "improvement_advice": "..."
     }},
     "contextual_relevance": {{
       "score": 0,
@@ -213,21 +220,14 @@ OUTPUT FORMAT — STRICTLY VALID JSON — NO EXTRA TEXT
       "justification": "...",
       "improvement_advice": "..."
     }},
-    "uncertainty_management": {{
+    "reliability_and_anticipation": {{
       "score": 0,
       "applicable": true,
       "observed_elements": "...",
       "justification": "...",
       "improvement_advice": "..."
     }},
-    "action_segmentation": {{
-      "score": 0,
-      "applicable": true,
-      "observed_elements": "...",
-      "justification": "...",
-      "improvement_advice": "..."
-    }},
-    "error_prevention": {{
+    "task_segmentation": {{
       "score": 0,
       "applicable": true,
       "observed_elements": "...",
