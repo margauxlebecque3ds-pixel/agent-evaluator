@@ -6,6 +6,17 @@ import json
 
 st.set_page_config(page_title="eval.ai", layout="wide", page_icon="🔬")
 
+# ── Language via query params ──────────────────────────────────────────────────
+params = st.query_params
+if "lang" in params:
+    st.session_state.lang = params["lang"]
+if "lang" not in st.session_state:
+    st.session_state.lang = "en"
+lang = st.session_state.lang
+
+FLAG_FR  = "https://raw.githubusercontent.com/margauxlebecque3ds-pixel/agent-evaluator/master/FR.png"
+FLAG_ENG = "https://raw.githubusercontent.com/margauxlebecque3ds-pixel/agent-evaluator/master/ENG.png"
+
 T = {
     "en": {
         "badge": "UX-driven AI evaluation",
@@ -28,6 +39,8 @@ T = {
         "na": "N/A",
         "warning": "⚠️ Please fill in both fields before running the evaluation.",
         "error": "Error",
+        "flag": FLAG_ENG,
+        "label": "EN",
     },
     "fr": {
         "badge": "Évaluation UX par IA",
@@ -50,57 +63,58 @@ T = {
         "na": "N/A",
         "warning": "⚠️ Remplis les deux champs avant de lancer l'évaluation.",
         "error": "Erreur",
+        "flag": FLAG_FR,
+        "label": "FR",
     }
 }
 
-if "lang" not in st.session_state:
-    st.session_state.lang = "en"
+t = T[lang]
+other_lang = "fr" if lang == "en" else "en"
+other_t = T[other_lang]
 
-lang = st.session_state.lang
-fr_active = "border:1px solid #0050c8 !important;background:#0a1a3a !important;color:white !important;" if lang == "fr" else "border:1px solid #2a2a2a !important;background:#111 !important;color:#aaa !important;"
-en_active = "border:1px solid #0050c8 !important;background:#0a1a3a !important;color:white !important;" if lang == "en" else "border:1px solid #2a2a2a !important;background:#111 !important;color:#aaa !important;"
+fr_active  = "background:#0a1a3a;border:1.5px solid #0050c8;color:white;" if lang=="fr" else "background:#111;border:1.5px solid #2a2a2a;color:#888;"
+en_active  = "background:#0a1a3a;border:1.5px solid #0050c8;color:white;" if lang=="en" else "background:#111;border:1.5px solid #2a2a2a;color:#888;"
 
 st.markdown(f"""
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
   .stApp {{ background-color: #0d0d0d; color: #e0e0e0; }}
-  .hero {{ text-align: center; padding: 2rem 1rem 3rem 1rem; max-width: 700px; margin: 0 auto; }}
-  .hero-badge {{ display: inline-flex; align-items: center; gap: 0.4rem; background: #111; border: 1px solid #2a2a2a; border-radius: 20px; padding: 0.3rem 1rem; font-family: 'Space Mono', monospace; font-size: 0.75rem; color: #ccc; margin-bottom: 1.5rem; }}
-  .dot {{ width: 7px; height: 7px; background: #0050c8; border-radius: 50%; display: inline-block; }}
-  .hero-title {{ font-family: 'Inter', sans-serif; font-size: 3rem; font-weight: 700; color: white; line-height: 1.15; margin-bottom: 0.3rem; }}
-  .accent {{ color: #4d8bff; }}
-  .hero-subtitle {{ font-family: 'Inter', sans-serif; font-size: 1rem; color: #aaa; margin-bottom: 1rem; }}
-  .hero-desc {{ font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #888; line-height: 1.6; margin-bottom: 1rem; }}
-  .hero-link {{ font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #4d8bff; }}
-  .form-label {{ font-family: 'Space Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em; color: #aaa; text-transform: uppercase; margin-bottom: 0.5rem; }}
-  textarea {{ background: #111 !important; border: 1px solid #2a2a2a !important; border-radius: 10px !important; color: #e0e0e0 !important; font-family: 'Space Mono', monospace !important; font-size: 0.85rem !important; }}
-  textarea::placeholder {{ color: #555 !important; }}
+  .hero {{ text-align:center; padding:2rem 1rem 3rem 1rem; max-width:700px; margin:0 auto; }}
+  .hero-badge {{ display:inline-flex; align-items:center; gap:0.4rem; background:#111; border:1px solid #2a2a2a; border-radius:20px; padding:0.3rem 1rem; font-family:'Space Mono',monospace; font-size:0.75rem; color:#ccc; margin-bottom:1.5rem; }}
+  .dot {{ width:7px; height:7px; background:#0050c8; border-radius:50%; display:inline-block; }}
+  .hero-title {{ font-family:'Inter',sans-serif; font-size:3rem; font-weight:700; color:white; line-height:1.15; margin-bottom:0.3rem; }}
+  .accent {{ color:#4d8bff; }}
+  .hero-subtitle {{ font-family:'Inter',sans-serif; font-size:1rem; color:#aaa; margin-bottom:1rem; }}
+  .hero-desc {{ font-family:'Inter',sans-serif; font-size:0.9rem; color:#888; line-height:1.6; margin-bottom:1rem; }}
+  .hero-link {{ font-family:'Inter',sans-serif; font-size:0.85rem; color:#4d8bff; }}
+  .form-label {{ font-family:'Space Mono',monospace; font-size:0.72rem; letter-spacing:0.12em; color:#aaa; text-transform:uppercase; margin-bottom:0.5rem; }}
+  textarea {{ background:#111 !important; border:1px solid #2a2a2a !important; border-radius:10px !important; color:#e0e0e0 !important; font-family:'Space Mono',monospace !important; font-size:0.85rem !important; }}
+  textarea::placeholder {{ color:#555 !important; }}
 
-  /* Lang button container */
-  .lang-wrap {{ display:flex; gap:8px; justify-content:flex-end; padding-top:0.9rem; }}
-  .lang-wrap .stButton {{ margin:0 !important; flex:0 0 auto !important; }}
-  .lang-wrap .stButton > button {{
-    font-family: 'Space Mono', monospace !important;
-    font-size: 0.72rem !important;
-    font-weight: 700 !important;
-    padding: 4px 10px !important;
-    border-radius: 6px !important;
-    min-height: unset !important;
-    height: 28px !important;
-    width: auto !important;
-    letter-spacing: 0.05em !important;
-    line-height: 1 !important;
+  /* Lang pills */
+  .lang-pills {{ display:flex; gap:8px; justify-content:flex-end; padding-top:0.9rem; }}
+  .lang-pill {{
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px 4px 6px;
+    border-radius: 20px;
+    font-family: 'Space Mono', monospace;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s;
   }}
-  #btn_fr > button, button[kind="secondary"][data-testid*="btn_fr"] {{
-    {fr_active}
-  }}
-  #btn_en > button, button[kind="secondary"][data-testid*="btn_en"] {{
-    {en_active}
-  }}
+  .lang-pill img {{ width:20px; height:14px; object-fit:cover; border-radius:3px; display:block; }}
+  .lang-pill:hover {{ border-color: #0050c8 !important; color: white !important; }}
+  .lang-pill-fr {{ {fr_active} }}
+  .lang-pill-en {{ {en_active} }}
 
   /* Eval button */
   .stButton {{ display:flex; justify-content:center; margin-top:1.5rem; }}
-  .stButton > button {{ background:linear-gradient(90deg,#003189,#0050c8) !important; color:white !important; border:none !important; padding:0.75rem 2.5rem !important; border-radius:10px !important; font-family:'Space Mono',monospace !important; font-size:0.9rem !important; font-weight:700 !important; height:auto !important; }}
+  .stButton > button {{ background:linear-gradient(90deg,#003189,#0050c8) !important; color:white !important; border:none !important; padding:0.75rem 2.5rem !important; border-radius:10px !important; font-family:'Space Mono',monospace !important; font-size:0.9rem !important; font-weight:700 !important; }}
 
   .results-title {{ font-family:'Inter',sans-serif; font-size:1.3rem; font-weight:700; color:white; margin:2rem 0 1.5rem 0; border-bottom:1px solid #1e1e1e; padding-bottom:0.8rem; }}
   .criterion-card {{ background:#111; border:1px solid #1e1e1e; border-left:4px solid #0050c8; border-radius:10px; padding:1.2rem 1.5rem; margin-bottom:1rem; }}
@@ -137,16 +151,17 @@ with col_nav1:
     </div>
     """, unsafe_allow_html=True)
 with col_nav2:
-    st.markdown('<div class="lang-wrap">', unsafe_allow_html=True)
-    if st.button("FR", key="btn_fr"):
-        st.session_state.lang = "fr"
-        st.rerun()
-    if st.button("EN", key="btn_en"):
-        st.session_state.lang = "en"
-        st.rerun()
-    st.markdown('</div>', unsafe_allow_html=True)
+    st.markdown(f"""
+    <div class="lang-pills">
+      <a href="?lang=fr" class="lang-pill lang-pill-fr">
+        <img src="{FLAG_FR}" alt="FR"/> FR
+      </a>
+      <a href="?lang=en" class="lang-pill lang-pill-en">
+        <img src="{FLAG_ENG}" alt="EN"/> EN
+      </a>
+    </div>
+    """, unsafe_allow_html=True)
 
-lang = st.session_state.lang
 t = T[lang]
 
 st.markdown(f"""
