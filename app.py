@@ -57,6 +57,10 @@ T = {
 if "lang" not in st.session_state:
     st.session_state.lang = "en"
 
+# Raw GitHub URLs for flags
+FLAG_FR  = "https://raw.githubusercontent.com/margauxlebecque3ds-pixel/agent-evaluator/master/FR.png"
+FLAG_ENG = "https://raw.githubusercontent.com/margauxlebecque3ds-pixel/agent-evaluator/master/ENG.png"
+
 st.markdown("""
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
@@ -78,27 +82,36 @@ st.markdown("""
   .hero-desc { font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #888; line-height: 1.6; margin-bottom: 1rem; }
   .hero-link { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #4d8bff; }
 
-  /* Form labels — bien visibles */
   .form-label {
-    font-family: 'Space Mono', monospace;
-    font-size: 0.72rem;
-    letter-spacing: 0.12em;
-    color: #aaa;
-    text-transform: uppercase;
-    margin-bottom: 0.5rem;
+    font-family: 'Space Mono', monospace; font-size: 0.72rem;
+    letter-spacing: 0.12em; color: #aaa; text-transform: uppercase; margin-bottom: 0.5rem;
   }
 
-  /* Textarea */
   textarea {
-    background: #111 !important;
-    border: 1px solid #2a2a2a !important;
-    border-radius: 10px !important;
-    color: #e0e0e0 !important;
-    font-family: 'Space Mono', monospace !important;
-    font-size: 0.85rem !important;
+    background: #111 !important; border: 1px solid #2a2a2a !important;
+    border-radius: 10px !important; color: #e0e0e0 !important;
+    font-family: 'Space Mono', monospace !important; font-size: 0.85rem !important;
   }
   textarea:focus { border-color: #0050c8 !important; box-shadow: 0 0 0 2px rgba(0,80,200,0.2) !important; }
   textarea::placeholder { color: #555 !important; }
+
+  /* Flag buttons */
+  .flag-container { display: flex; align-items: center; gap: 0.5rem; padding-top: 0.8rem; justify-content: flex-end; }
+  .flag-btn {
+    background: none; border: 2px solid transparent; border-radius: 8px;
+    padding: 2px; cursor: pointer; opacity: 0.5; transition: all 0.2s;
+  }
+  .flag-btn:hover { opacity: 0.85; }
+  .flag-btn.active { border-color: #0050c8; opacity: 1; }
+  .flag-btn img { width: 36px; height: 24px; object-fit: cover; border-radius: 4px; display: block; }
+
+  /* Streamlit button styling for flag triggers */
+  .flag-trigger button {
+    background: none !important; border: none !important; padding: 0 !important;
+    box-shadow: none !important; color: transparent !important;
+    font-size: 0px !important; width: 0px !important; height: 0px !important;
+    position: absolute !important;
+  }
 
   .stButton { display: flex; justify-content: center; margin-top: 1.5rem; }
   .stButton > button {
@@ -107,18 +120,6 @@ st.markdown("""
     font-size: 0.9rem; font-weight: 700; letter-spacing: 0.03em;
   }
   .stButton > button:hover { opacity: 0.85; }
-
-  /* Radio flag */
-  div[data-testid="stRadio"] { margin-top: 0.8rem; }
-  div[data-testid="stRadio"] > div { gap: 0.3rem !important; }
-  div[data-testid="stRadio"] label {
-    display: flex !important; align-items: center; justify-content: center;
-    background: #111; border: 1px solid #2a2a2a; border-radius: 8px;
-    padding: 0.25rem 0.6rem; cursor: pointer; font-size: 1.4rem !important;
-    color: white !important; min-width: 2.5rem;
-  }
-  div[data-testid="stRadio"] label:has(input:checked) { border-color: #0050c8; background: #0a1a3a; }
-  div[data-testid="stRadio"] input { display: none; }
 
   .results-title { font-family: 'Inter', sans-serif; font-size: 1.3rem; font-weight: 700; color: white; margin: 2rem 0 1.5rem 0; border-bottom: 1px solid #1e1e1e; padding-bottom: 0.8rem; }
 
@@ -146,13 +147,12 @@ st.markdown("""
   #MainMenu, footer, header { visibility: hidden; }
   .block-container { padding-top: 0 !important; }
   label { display: none !important; }
-  div[data-testid="stRadio"] label { display: flex !important; }
   hr { display: none; }
 </style>
 """, unsafe_allow_html=True)
 
 # ── Navbar ─────────────────────────────────────────────────────────────────────
-col_nav1, col_nav2 = st.columns([8, 1])
+col_nav1, col_nav2 = st.columns([8, 2])
 with col_nav1:
     st.markdown("""
     <div style="display:flex; align-items:center; gap:0.5rem; padding: 1rem 0 1rem 0; border-bottom: 1px solid #1e1e1e; margin-bottom: 2rem;">
@@ -160,15 +160,30 @@ with col_nav1:
       <span style="font-family:'Inter',sans-serif; font-weight:700; font-size:1.1rem; color:white;">eval.ai</span>
     </div>
     """, unsafe_allow_html=True)
+
 with col_nav2:
-    lang_choice = st.radio(
-        "lang",
-        ["🇫🇷", "🇬🇧"],
-        horizontal=True,
-        label_visibility="collapsed",
-        index=0 if st.session_state.lang == "fr" else 1
-    )
-    st.session_state.lang = "fr" if lang_choice == "🇫🇷" else "en"
+    lang = st.session_state.lang
+    active_fr  = "active" if lang == "fr" else ""
+    active_eng = "active" if lang == "en" else ""
+    st.markdown(f"""
+    <div class="flag-container">
+      <div class="flag-btn {active_fr}" id="flag-fr">
+        <img src="{FLAG_FR}" alt="FR" />
+      </div>
+      <div class="flag-btn {active_eng}" id="flag-eng">
+        <img src="{FLAG_ENG}" alt="EN" />
+      </div>
+    </div>
+    """, unsafe_allow_html=True)
+    c1, c2 = st.columns(2)
+    with c1:
+        if st.button("FR", key="btn_fr", help="Français"):
+            st.session_state.lang = "fr"
+            st.rerun()
+    with c2:
+        if st.button("EN", key="btn_en", help="English"):
+            st.session_state.lang = "en"
+            st.rerun()
 
 lang = st.session_state.lang
 t = T[lang]
