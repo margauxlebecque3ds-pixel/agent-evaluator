@@ -3,6 +3,7 @@
 import streamlit as st
 from main import evaluate_response
 import json
+import io
 
 st.set_page_config(page_title="eval.ai", layout="wide", page_icon="🔬")
 
@@ -31,6 +32,101 @@ def format_text(text):
         items = "".join(f"<li>{s}{'.' if not s.endswith('.') else ''}</li>" for s in sentences)
         return f"<ul style='margin:0.4rem 0 0 0;padding-left:1.3rem;'>{items}</ul>"
     return text
+
+
+def export_to_excel(data, lang):
+    import openpyxl
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
+
+    wb = openpyxl.Workbook()
+    ws = wb.active
+    ws.title = "Evaluation"
+
+    # Colors
+    blue_fill   = PatternFill("solid", fgColor="003189")
+    red_fill    = PatternFill("solid", fgColor="e53935")
+    orange_fill = PatternFill("solid", fgColor="f57c00")
+    green_fill  = PatternFill("solid", fgColor="2e7d32")
+    gray_fill   = PatternFill("solid", fgColor="9e9e9e")
+    header_fill = PatternFill("solid", fgColor="1a1a2e")
+    white_font  = Font(color="FFFFFF", bold=True, size=11)
+    bold_font   = Font(bold=True, size=10)
+    normal_font = Font(size=10)
+    thin_border = Border(
+        left=Side(style='thin', color='DDDDDD'),
+        right=Side(style='thin', color='DDDDDD'),
+        top=Side(style='thin', color='DDDDDD'),
+        bottom=Side(style='thin', color='DDDDDD')
+    )
+
+    # Header row
+    headers = ["Criterion", "Score", "Applicable", "Observed", "Justification", "Improvement Advice"] if lang == "en" else ["Critère", "Score", "Applicable", "Observé", "Justification", "Conseil"]
+    col_widths = [28, 10, 12, 45, 45, 45]
+
+    for i, (h, w) in enumerate(zip(headers, col_widths), 1):
+        cell = ws.cell(row=1, column=i, value=h)
+        cell.font = white_font
+        cell.fill = blue_fill
+        cell.alignment = Alignment(horizontal='center', vertical='center', wrap_text=True)
+        cell.border = thin_border
+        ws.column_dimensions[get_column_letter(i)].width = w
+    ws.row_dimensions[1].height = 30
+
+    # Data rows
+    for row_idx, (criterion, content_data) in enumerate(data["evaluation"].items(), 2):
+        score = content_data.get("score")
+        applicable = content_data.get("applicable", True)
+        observed = content_data.get("observed_elements", "")
+        justif = content_data.get("justification", "")
+        advice = content_data.get("improvement_advice", "")
+
+        criterion_name = criterion.replace("_", " ").title()
+        score_display = str(score) + " / 5" if score is not None else "N/A"
+        applicable_display = "Yes" if applicable else "No" if lang == "en" else ("Oui" if applicable else "Non")
+
+        row_data = [criterion_name, score_display, applicable_display, observed, justif, advice]
+
+        for col_idx, value in enumerate(row_data, 1):
+            cell = ws.cell(row=row_idx, column=col_idx, value=value)
+            cell.alignment = Alignment(wrap_text=True, vertical='top')
+            cell.border = thin_border
+            cell.font = normal_font
+
+        # Color score cell
+        score_cell = ws.cell(row=row_idx, column=2)
+        score_cell.font = Font(color="FFFFFF", bold=True, size=10)
+        score_cell.alignment = Alignment(horizontal='center', vertical='center')
+        if not applicable or score is None:
+            score_cell.fill = gray_fill
+        elif score <= 2:
+            score_cell.fill = red_fill
+        elif score <= 4:
+            score_cell.fill = orange_fill
+        else:
+            score_cell.fill = green_fill
+
+        ws.row_dimensions[row_idx].height = 80
+
+    # Global suggestions sheet
+    ws2 = wb.create_sheet(title="Suggestions" if lang == "en" else "Suggestions globales")
+    ws2.column_dimensions["A"].width = 80
+    suggestions = data.get("global_improvement_suggestions", [])
+    title_cell = ws2.cell(row=1, column=1, value="Global Improvement Suggestions" if lang == "en" else "Suggestions d'amélioration globales")
+    title_cell.font = white_font
+    title_cell.fill = blue_fill
+    title_cell.alignment = Alignment(wrap_text=True)
+    for i, s in enumerate(suggestions, 2):
+        cell = ws2.cell(row=i, column=1, value=f"• {s}")
+        cell.alignment = Alignment(wrap_text=True, vertical='top')
+        cell.font = normal_font
+        cell.border = thin_border
+        ws2.row_dimensions[i].height = 60
+
+    output = io.BytesIO()
+    wb.save(output)
+    output.seek(0)
+    return output
 
 if "lang" not in st.session_state:
     st.session_state.lang = "en"
@@ -245,5 +341,16 @@ if st.button(t["button"]):
                 s_html += f"<li>{s}</li>"
             s_html += "</ul></div>"
             st.markdown(s_html, unsafe_allow_html=True)
+
+        # Export button
+        export_label = "📥 Export to Excel" if lang == "en" else "📥 Exporter en Excel"
+        excel_file = export_to_excel(data, lang)
+        st.download_button(
+            label=export_label,
+            data=excel_file,
+            file_name="evaluation_results.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+        )
+
     else:
         st.warning(t["warning"])
