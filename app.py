@@ -58,50 +58,79 @@ if "lang" not in st.session_state:
 
 lang = st.session_state.lang
 
-st.markdown("""
+# Active styles injected dynamically
+fr_bg    = "#0a1a3a" if lang == "fr" else "#111"
+fr_bd    = "#0050c8" if lang == "fr" else "#2a2a2a"
+fr_color = "white"   if lang == "fr" else "#aaa"
+en_bg    = "#0a1a3a" if lang == "en" else "#111"
+en_bd    = "#0050c8" if lang == "en" else "#2a2a2a"
+en_color = "white"   if lang == "en" else "#aaa"
+
+st.markdown(f"""
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
-  .stApp { background-color: #0d0d0d; color: #e0e0e0; }
-  .hero { text-align: center; padding: 2rem 1rem 3rem 1rem; max-width: 700px; margin: 0 auto; }
-  .hero-badge { display: inline-flex; align-items: center; gap: 0.4rem; background: #111; border: 1px solid #2a2a2a; border-radius: 20px; padding: 0.3rem 1rem; font-family: 'Space Mono', monospace; font-size: 0.75rem; color: #ccc; margin-bottom: 1.5rem; }
-  .dot { width: 7px; height: 7px; background: #0050c8; border-radius: 50%; display: inline-block; }
-  .hero-title { font-family: 'Inter', sans-serif; font-size: 3rem; font-weight: 700; color: white; line-height: 1.15; margin-bottom: 0.3rem; }
-  .accent { color: #4d8bff; }
-  .hero-subtitle { font-family: 'Inter', sans-serif; font-size: 1rem; color: #aaa; margin-bottom: 1rem; }
-  .hero-desc { font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #888; line-height: 1.6; margin-bottom: 1rem; }
-  .hero-link { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #4d8bff; }
-  .form-label { font-family: 'Space Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em; color: #aaa; text-transform: uppercase; margin-bottom: 0.5rem; }
-  textarea { background: #111 !important; border: 1px solid #2a2a2a !important; border-radius: 10px !important; color: #e0e0e0 !important; font-family: 'Space Mono', monospace !important; font-size: 0.85rem !important; }
-  textarea::placeholder { color: #555 !important; }
-  /* All buttons default — eval button */
-  .stButton { display: flex; justify-content: center; margin-top: 1.5rem; }
-  .stButton > button { background: linear-gradient(90deg, #003189, #0050c8) !important; color: white !important; border: none !important; padding: 0.75rem 2.5rem !important; border-radius: 10px !important; font-family: 'Space Mono', monospace !important; font-size: 0.9rem !important; font-weight: 700 !important; }
-  /* Lang buttons override */
-  div[data-testid="stHorizontalBlock"] .stButton { margin: 0 !important; display: block !important; }
-  div[data-testid="stHorizontalBlock"] .stButton > button { background: #111 !important; border: 1px solid #2a2a2a !important; color: #aaa !important; font-family: 'Space Mono', monospace !important; font-size: 0.72rem !important; font-weight: 700 !important; padding: 0.3rem 0.65rem !important; border-radius: 6px !important; min-height: unset !important; width: auto !important; letter-spacing: 0.05em !important; margin: 0 !important; }
-  div[data-testid="stHorizontalBlock"] .stButton > button:hover { border-color: #0050c8 !important; color: white !important; }
-  .results-title { font-family: 'Inter', sans-serif; font-size: 1.3rem; font-weight: 700; color: white; margin: 2rem 0 1.5rem 0; border-bottom: 1px solid #1e1e1e; padding-bottom: 0.8rem; }
-  .criterion-card { background: #111; border: 1px solid #1e1e1e; border-left: 4px solid #0050c8; border-radius: 10px; padding: 1.2rem 1.5rem; margin-bottom: 1rem; }
-  .criterion-card.red { border-left-color: #e53935; }
-  .criterion-card.orange { border-left-color: #f57c00; }
-  .criterion-card.green { border-left-color: #2e7d32; }
-  .criterion-card.gray { border-left-color: #444; }
-  .crit-header { display: flex; flex-direction: row-reverse; justify-content: flex-end; align-items: center; gap: 1rem; margin-bottom: 0.8rem; }
-  .crit-name { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 1rem; color: #e0e0e0; }
-  .score-pill { font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; padding: 0.3rem 1rem; border-radius: 20px; }
-  .pill-red { background: #2a1010; color: #e53935; }
-  .pill-orange { background: #2a1a00; color: #f57c00; }
-  .pill-green { background: #0a2a0a; color: #4caf50; }
-  .pill-gray { background: #1a1a1a; color: #777; }
-  .crit-detail { font-family: 'Inter', sans-serif; font-size: 0.92rem; color: #c0c0c0; margin-top: 0.6rem; line-height: 1.7; }
-  .crit-detail strong { color: #e0e0e0; }
-  .suggestions-box { background: #0a0f1a; border: 1px solid #1a2a4a; border-radius: 10px; padding: 1.5rem; margin-top: 2rem; }
-  .suggestions-box h3 { font-family: 'Inter', sans-serif; color: #4d8bff; font-size: 1rem; margin-bottom: 1rem; }
-  .suggestions-box li { font-family: 'Inter', sans-serif; font-size: 0.92rem; color: #c0c0c0; margin-bottom: 0.5rem; line-height: 1.7; }
-  #MainMenu, footer, header { visibility: hidden; }
-  .block-container { padding-top: 0 !important; }
-  label { display: none !important; }
-  hr { display: none; }
+  .stApp {{ background-color: #0d0d0d; color: #e0e0e0; }}
+  .hero {{ text-align: center; padding: 2rem 1rem 3rem 1rem; max-width: 700px; margin: 0 auto; }}
+  .hero-badge {{ display: inline-flex; align-items: center; gap: 0.4rem; background: #111; border: 1px solid #2a2a2a; border-radius: 20px; padding: 0.3rem 1rem; font-family: 'Space Mono', monospace; font-size: 0.75rem; color: #ccc; margin-bottom: 1.5rem; }}
+  .dot {{ width: 7px; height: 7px; background: #0050c8; border-radius: 50%; display: inline-block; }}
+  .hero-title {{ font-family: 'Inter', sans-serif; font-size: 3rem; font-weight: 700; color: white; line-height: 1.15; margin-bottom: 0.3rem; }}
+  .accent {{ color: #4d8bff; }}
+  .hero-subtitle {{ font-family: 'Inter', sans-serif; font-size: 1rem; color: #aaa; margin-bottom: 1rem; }}
+  .hero-desc {{ font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #888; line-height: 1.6; margin-bottom: 1rem; }}
+  .hero-link {{ font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #4d8bff; }}
+  .form-label {{ font-family: 'Space Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em; color: #aaa; text-transform: uppercase; margin-bottom: 0.5rem; }}
+  textarea {{ background: #111 !important; border: 1px solid #2a2a2a !important; border-radius: 10px !important; color: #e0e0e0 !important; font-family: 'Space Mono', monospace !important; font-size: 0.85rem !important; }}
+  textarea::placeholder {{ color: #555 !important; }}
+
+  /* Lang buttons */
+  [data-testid="stButton"]:has(button[data-testid="baseButton-secondary"]#btn_fr) button,
+  [data-testid="stButton"]:has(button[data-testid="baseButton-secondary"]#btn_en) button {{
+    font-family: 'Space Mono', monospace !important;
+    font-size: 0.72rem !important;
+    font-weight: 700 !important;
+    padding: 0.25rem 0.55rem !important;
+    border-radius: 6px !important;
+    min-height: unset !important;
+    letter-spacing: 0.05em !important;
+  }}
+
+  button[key="btn_fr"], #btn_fr {{
+    background: {fr_bg} !important;
+    border: 1px solid {fr_bd} !important;
+    color: {fr_color} !important;
+  }}
+  button[key="btn_en"], #btn_en {{
+    background: {en_bg} !important;
+    border: 1px solid {en_bd} !important;
+    color: {en_color} !important;
+  }}
+
+  /* Eval button */
+  .stButton {{ display: flex; justify-content: center; margin-top: 1.5rem; }}
+  .stButton > button {{ background: linear-gradient(90deg, #003189, #0050c8) !important; color: white !important; border: none !important; padding: 0.75rem 2.5rem !important; border-radius: 10px !important; font-family: 'Space Mono', monospace !important; font-size: 0.9rem !important; font-weight: 700 !important; }}
+
+  .results-title {{ font-family: 'Inter', sans-serif; font-size: 1.3rem; font-weight: 700; color: white; margin: 2rem 0 1.5rem 0; border-bottom: 1px solid #1e1e1e; padding-bottom: 0.8rem; }}
+  .criterion-card {{ background: #111; border: 1px solid #1e1e1e; border-left: 4px solid #0050c8; border-radius: 10px; padding: 1.2rem 1.5rem; margin-bottom: 1rem; }}
+  .criterion-card.red {{ border-left-color: #e53935; }}
+  .criterion-card.orange {{ border-left-color: #f57c00; }}
+  .criterion-card.green {{ border-left-color: #2e7d32; }}
+  .criterion-card.gray {{ border-left-color: #444; }}
+  .crit-header {{ display: flex; flex-direction: row-reverse; justify-content: flex-end; align-items: center; gap: 1rem; margin-bottom: 0.8rem; }}
+  .crit-name {{ font-family: 'Inter', sans-serif; font-weight: 600; font-size: 1rem; color: #e0e0e0; }}
+  .score-pill {{ font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; padding: 0.3rem 1rem; border-radius: 20px; }}
+  .pill-red {{ background: #2a1010; color: #e53935; }}
+  .pill-orange {{ background: #2a1a00; color: #f57c00; }}
+  .pill-green {{ background: #0a2a0a; color: #4caf50; }}
+  .pill-gray {{ background: #1a1a1a; color: #777; }}
+  .crit-detail {{ font-family: 'Inter', sans-serif; font-size: 0.92rem; color: #c0c0c0; margin-top: 0.6rem; line-height: 1.7; }}
+  .crit-detail strong {{ color: #e0e0e0; }}
+  .suggestions-box {{ background: #0a0f1a; border: 1px solid #1a2a4a; border-radius: 10px; padding: 1.5rem; margin-top: 2rem; }}
+  .suggestions-box h3 {{ font-family: 'Inter', sans-serif; color: #4d8bff; font-size: 1rem; margin-bottom: 1rem; }}
+  .suggestions-box li {{ font-family: 'Inter', sans-serif; font-size: 0.92rem; color: #c0c0c0; margin-bottom: 0.5rem; line-height: 1.7; }}
+  #MainMenu, footer, header {{ visibility: hidden; }}
+  .block-container {{ padding-top: 0 !important; }}
+  label {{ display: none !important; }}
+  hr {{ display: none; }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -115,17 +144,24 @@ with col_nav1:
     </div>
     """, unsafe_allow_html=True)
 with col_nav2:
-    st.markdown("<div style='display:flex;gap:8px;justify-content:flex-end;padding-top:0.9rem;'>", unsafe_allow_html=True)
-    c1, c2 = st.columns(2)
-    with c1:
-        if st.button("FR", key="btn_fr"):
-            st.session_state.lang = "fr"
-            st.rerun()
-    with c2:
-        if st.button("EN", key="btn_en"):
-            st.session_state.lang = "en"
-            st.rerun()
-    st.markdown("</div>", unsafe_allow_html=True)
+    # Use a single container with flexbox via HTML, buttons side by side
+    btn_col = st.container()
+    with btn_col:
+        st.markdown("""<style>
+        div[data-testid="stVerticalBlock"] > div[data-testid="stVerticalBlock"] > div[data-testid="element-container"] {
+          display: inline-block !important;
+        }
+        </style>""", unsafe_allow_html=True)
+        
+        col_fr, col_en = st.columns([1,1], gap="small")
+        with col_fr:
+            if st.button("FR", key="btn_fr"):
+                st.session_state.lang = "fr"
+                st.rerun()
+        with col_en:
+            if st.button("EN", key="btn_en"):
+                st.session_state.lang = "en"
+                st.rerun()
 
 lang = st.session_state.lang
 t = T[lang]
