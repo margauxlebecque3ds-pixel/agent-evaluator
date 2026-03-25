@@ -59,105 +59,86 @@ if "lang" not in st.session_state:
 FLAG_FR  = "https://raw.githubusercontent.com/margauxlebecque3ds-pixel/agent-evaluator/master/FR.png"
 FLAG_ENG = "https://raw.githubusercontent.com/margauxlebecque3ds-pixel/agent-evaluator/master/ENG.png"
 
-lang = st.session_state.lang
-active_fr  = "2px solid #0050c8" if lang == "fr" else "2px solid transparent"
-active_eng = "2px solid #0050c8" if lang == "en" else "2px solid transparent"
-
-st.markdown(f"""
+st.markdown("""
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
 
-  .stApp {{ background-color: #0d0d0d; color: #e0e0e0; }}
-  * {{ box-sizing: border-box; }}
+  .stApp { background-color: #0d0d0d; color: #e0e0e0; }
+  * { box-sizing: border-box; }
 
-  .hero {{ text-align: center; padding: 2rem 1rem 3rem 1rem; max-width: 700px; margin: 0 auto; }}
-  .hero-badge {{
+  .hero { text-align: center; padding: 2rem 1rem 3rem 1rem; max-width: 700px; margin: 0 auto; }
+  .hero-badge {
     display: inline-flex; align-items: center; gap: 0.4rem;
     background: #111; border: 1px solid #2a2a2a; border-radius: 20px;
     padding: 0.3rem 1rem; font-family: 'Space Mono', monospace;
     font-size: 0.75rem; color: #ccc; margin-bottom: 1.5rem;
-  }}
-  .dot {{ width: 7px; height: 7px; background: #0050c8; border-radius: 50%; display: inline-block; }}
-  .hero-title {{ font-family: 'Inter', sans-serif; font-size: 3rem; font-weight: 700; color: white; line-height: 1.15; margin-bottom: 0.3rem; }}
-  .accent {{ color: #4d8bff; }}
-  .hero-subtitle {{ font-family: 'Inter', sans-serif; font-size: 1rem; color: #aaa; margin-bottom: 1rem; }}
-  .hero-desc {{ font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #888; line-height: 1.6; margin-bottom: 1rem; }}
-  .hero-link {{ font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #4d8bff; }}
+  }
+  .dot { width: 7px; height: 7px; background: #0050c8; border-radius: 50%; display: inline-block; }
+  .hero-title { font-family: 'Inter', sans-serif; font-size: 3rem; font-weight: 700; color: white; line-height: 1.15; margin-bottom: 0.3rem; }
+  .accent { color: #4d8bff; }
+  .hero-subtitle { font-family: 'Inter', sans-serif; font-size: 1rem; color: #aaa; margin-bottom: 1rem; }
+  .hero-desc { font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #888; line-height: 1.6; margin-bottom: 1rem; }
+  .hero-link { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #4d8bff; }
 
-  .form-label {{
+  .form-label {
     font-family: 'Space Mono', monospace; font-size: 0.72rem;
     letter-spacing: 0.12em; color: #aaa; text-transform: uppercase; margin-bottom: 0.5rem;
-  }}
+  }
 
-  textarea {{
+  textarea {
     background: #111 !important; border: 1px solid #2a2a2a !important;
     border-radius: 10px !important; color: #e0e0e0 !important;
     font-family: 'Space Mono', monospace !important; font-size: 0.85rem !important;
-  }}
-  textarea:focus {{ border-color: #0050c8 !important; box-shadow: 0 0 0 2px rgba(0,80,200,0.2) !important; }}
-  textarea::placeholder {{ color: #555 !important; }}
+  }
+  textarea:focus { border-color: #0050c8 !important; box-shadow: 0 0 0 2px rgba(0,80,200,0.2) !important; }
+  textarea::placeholder { color: #555 !important; }
 
-  /* Flag buttons — image as button background */
-  [data-testid="column"] .stButton > button[kind="secondary"] {{
-    width: 48px !important;
-    height: 32px !important;
-    padding: 0 !important;
-    border-radius: 6px !important;
-    border: 2px solid transparent !important;
-    font-size: 0 !important;
-    color: transparent !important;
-    background-size: cover !important;
-    background-position: center !important;
-    background-repeat: no-repeat !important;
-    cursor: pointer !important;
-    transition: border 0.2s !important;
-  }}
+  /* Flag image buttons */
+  .flag-col img { border-radius: 6px; cursor: pointer; opacity: 0.55; transition: opacity 0.2s; }
+  .flag-col img:hover { opacity: 1; }
+  .flag-col.active img { opacity: 1; outline: 2px solid #0050c8; border-radius: 6px; }
 
-  #btn_fr > button {{
-    background-image: url('{FLAG_FR}') !important;
-    border: {active_fr} !important;
-  }}
-  #btn_en > button {{
-    background-image: url('{FLAG_ENG}') !important;
-    border: {active_eng} !important;
-  }}
+  /* Hide flag text buttons */
+  .flag-col .stButton > button {
+    display: none !important;
+  }
 
   /* Main eval button */
-  .stButton {{ display: flex; justify-content: center; margin-top: 1.5rem; }}
-  .stButton > button {{
+  .stButton { display: flex; justify-content: center; margin-top: 1.5rem; }
+  .stButton > button {
     background: linear-gradient(90deg, #003189, #0050c8); color: white; border: none;
     padding: 0.75rem 2.5rem; border-radius: 10px; font-family: 'Space Mono', monospace;
     font-size: 0.9rem; font-weight: 700; letter-spacing: 0.03em;
-  }}
-  .stButton > button:hover {{ opacity: 0.85; }}
+  }
+  .stButton > button:hover { opacity: 0.85; }
 
-  .results-title {{ font-family: 'Inter', sans-serif; font-size: 1.3rem; font-weight: 700; color: white; margin: 2rem 0 1.5rem 0; border-bottom: 1px solid #1e1e1e; padding-bottom: 0.8rem; }}
+  .results-title { font-family: 'Inter', sans-serif; font-size: 1.3rem; font-weight: 700; color: white; margin: 2rem 0 1.5rem 0; border-bottom: 1px solid #1e1e1e; padding-bottom: 0.8rem; }
 
-  .criterion-card {{ background: #111; border: 1px solid #1e1e1e; border-left: 4px solid #0050c8; border-radius: 10px; padding: 1.2rem 1.5rem; margin-bottom: 1rem; }}
-  .criterion-card.red    {{ border-left-color: #e53935; }}
-  .criterion-card.orange {{ border-left-color: #f57c00; }}
-  .criterion-card.green  {{ border-left-color: #2e7d32; }}
-  .criterion-card.gray   {{ border-left-color: #444; }}
+  .criterion-card { background: #111; border: 1px solid #1e1e1e; border-left: 4px solid #0050c8; border-radius: 10px; padding: 1.2rem 1.5rem; margin-bottom: 1rem; }
+  .criterion-card.red    { border-left-color: #e53935; }
+  .criterion-card.orange { border-left-color: #f57c00; }
+  .criterion-card.green  { border-left-color: #2e7d32; }
+  .criterion-card.gray   { border-left-color: #444; }
 
-  .crit-header {{ display: flex; flex-direction: row-reverse; justify-content: flex-end; align-items: center; gap: 1rem; margin-bottom: 0.8rem; }}
-  .crit-name {{ font-family: 'Inter', sans-serif; font-weight: 600; font-size: 1rem; color: #e0e0e0; }}
-  .score-pill {{ font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; padding: 0.3rem 1rem; border-radius: 20px; }}
-  .pill-red    {{ background: #2a1010; color: #e53935; }}
-  .pill-orange {{ background: #2a1a00; color: #f57c00; }}
-  .pill-green  {{ background: #0a2a0a; color: #4caf50; }}
-  .pill-gray   {{ background: #1a1a1a; color: #777; }}
+  .crit-header { display: flex; flex-direction: row-reverse; justify-content: flex-end; align-items: center; gap: 1rem; margin-bottom: 0.8rem; }
+  .crit-name { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 1rem; color: #e0e0e0; }
+  .score-pill { font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; padding: 0.3rem 1rem; border-radius: 20px; }
+  .pill-red    { background: #2a1010; color: #e53935; }
+  .pill-orange { background: #2a1a00; color: #f57c00; }
+  .pill-green  { background: #0a2a0a; color: #4caf50; }
+  .pill-gray   { background: #1a1a1a; color: #777; }
 
-  .crit-detail {{ font-family: 'Inter', sans-serif; font-size: 0.92rem; color: #c0c0c0; margin-top: 0.6rem; line-height: 1.7; }}
-  .crit-detail strong {{ color: #e0e0e0; }}
+  .crit-detail { font-family: 'Inter', sans-serif; font-size: 0.92rem; color: #c0c0c0; margin-top: 0.6rem; line-height: 1.7; }
+  .crit-detail strong { color: #e0e0e0; }
 
-  .suggestions-box {{ background: #0a0f1a; border: 1px solid #1a2a4a; border-radius: 10px; padding: 1.5rem; margin-top: 2rem; }}
-  .suggestions-box h3 {{ font-family: 'Inter', sans-serif; color: #4d8bff; font-size: 1rem; margin-bottom: 1rem; }}
-  .suggestions-box li {{ font-family: 'Inter', sans-serif; font-size: 0.92rem; color: #c0c0c0; margin-bottom: 0.5rem; line-height: 1.7; }}
+  .suggestions-box { background: #0a0f1a; border: 1px solid #1a2a4a; border-radius: 10px; padding: 1.5rem; margin-top: 2rem; }
+  .suggestions-box h3 { font-family: 'Inter', sans-serif; color: #4d8bff; font-size: 1rem; margin-bottom: 1rem; }
+  .suggestions-box li { font-family: 'Inter', sans-serif; font-size: 0.92rem; color: #c0c0c0; margin-bottom: 0.5rem; line-height: 1.7; }
 
-  #MainMenu, footer, header {{ visibility: hidden; }}
-  .block-container {{ padding-top: 0 !important; }}
-  label {{ display: none !important; }}
-  hr {{ display: none; }}
+  #MainMenu, footer, header { visibility: hidden; }
+  .block-container { padding-top: 0 !important; }
+  label { display: none !important; }
+  hr { display: none; }
 </style>
 """, unsafe_allow_html=True)
 
@@ -172,17 +153,23 @@ with col_nav1:
     """, unsafe_allow_html=True)
 
 with col_nav2:
-    st.markdown("<div style='display:flex; gap:0.4rem; padding-top:0.8rem; justify-content:flex-end;'>", unsafe_allow_html=True)
+    lang = st.session_state.lang
     c1, c2 = st.columns(2)
     with c1:
-        if st.button("FR", key="btn_fr", help="Français"):
+        border_fr = "2px solid #0050c8" if lang == "fr" else "2px solid transparent"
+        st.markdown(f'<div style="padding-top:0.8rem;">', unsafe_allow_html=True)
+        st.image(FLAG_FR, width=38)
+        st.markdown('</div>', unsafe_allow_html=True)
+        if st.button("🇫🇷", key="btn_fr", help="Français"):
             st.session_state.lang = "fr"
             st.rerun()
     with c2:
-        if st.button("EN", key="btn_en", help="English"):
+        st.markdown(f'<div style="padding-top:0.8rem;">', unsafe_allow_html=True)
+        st.image(FLAG_ENG, width=38)
+        st.markdown('</div>', unsafe_allow_html=True)
+        if st.button("🇬🇧", key="btn_en", help="English"):
             st.session_state.lang = "en"
             st.rerun()
-    st.markdown("</div>", unsafe_allow_html=True)
 
 lang = st.session_state.lang
 t = T[lang]
