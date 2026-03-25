@@ -153,10 +153,10 @@ with col_nav1:
 with col_nav2:
     st.markdown(f"""
     <div class="lang-pills">
-      <a href="?lang=fr" class="lang-pill lang-pill-fr">
+      <a href="?lang=fr" target="_self" class="lang-pill lang-pill-fr">
         <img src="{FLAG_FR}" alt="FR"/> FR
       </a>
-      <a href="?lang=en" class="lang-pill lang-pill-en">
+      <a href="?lang=en" target="_self" class="lang-pill lang-pill-en">
         <img src="{FLAG_ENG}" alt="EN"/> EN
       </a>
     </div>
