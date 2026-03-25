@@ -144,12 +144,9 @@ st.markdown(f"""
 # Navbar
 col_nav1, col_nav2 = st.columns([9, 1])
 with col_nav1:
-    st.markdown("""
-    <div style="display:flex;align-items:center;gap:0.5rem;padding:1rem 0 1rem 0;border-bottom:1px solid #1e1e1e;margin-bottom:2rem;">
-      <div style="background:#0050c8;color:white;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.8rem;">3DS</div>
-      <span style="font-family:'Inter',sans-serif;font-weight:700;font-size:1.1rem;color:white;">eval.ai</span>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown('<div style="padding:0.6rem 0 0 0;border-bottom:1px solid #1e1e1e;margin-bottom:2rem;">', unsafe_allow_html=True)
+    st.image("https://raw.githubusercontent.com/margauxlebecque3ds-pixel/agent-evaluator/master/DassaultSyst%C3%A8mesLogo.png", width=160)
+    st.markdown('</div>', unsafe_allow_html=True)
 with col_nav2:
     st.markdown(f"""
     <div class="lang-pills">
