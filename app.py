@@ -7,19 +7,13 @@ import io
 
 st.set_page_config(page_title="eval.ai", layout="wide", page_icon="🔬")
 
-# ── Language via query params ──────────────────────────────────────────────────
 params = st.query_params
 if "lang" in params:
     st.session_state.lang = params["lang"]
 
-
-import re as _re
-
 def format_text(text):
-    if not text:
-        return text
-    # Split on numbered patterns like "1) " or "1. "
-    parts = text.replace(") ", "|SPLIT|")
+    if not text or not isinstance(text, str):
+        return str(text) if text else ""
     check = text
     for i in range(1, 20):
         check = check.replace(str(i) + ") ", "|SPLIT|").replace(str(i) + ". ", "|SPLIT|")
@@ -34,7 +28,6 @@ def format_text(text):
         return "<ul style='margin:0.4rem 0 0 0;padding-left:1.3rem;'>" + items + "</ul>"
     return text
 
-
 def export_to_excel(data, lang):
     import openpyxl
     from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
@@ -44,15 +37,12 @@ def export_to_excel(data, lang):
     ws = wb.active
     ws.title = "Evaluation"
 
-    # Colors
     blue_fill   = PatternFill("solid", fgColor="003189")
     red_fill    = PatternFill("solid", fgColor="e53935")
     orange_fill = PatternFill("solid", fgColor="f57c00")
     green_fill  = PatternFill("solid", fgColor="2e7d32")
     gray_fill   = PatternFill("solid", fgColor="9e9e9e")
-    header_fill = PatternFill("solid", fgColor="1a1a2e")
     white_font  = Font(color="FFFFFF", bold=True, size=11)
-    bold_font   = Font(bold=True, size=10)
     normal_font = Font(size=10)
     thin_border = Border(
         left=Side(style='thin', color='DDDDDD'),
@@ -61,7 +51,6 @@ def export_to_excel(data, lang):
         bottom=Side(style='thin', color='DDDDDD')
     )
 
-    # Header row
     headers = ["Criterion", "Score", "Applicable", "Observed", "Justification", "Improvement Advice"] if lang == "en" else ["Critère", "Score", "Applicable", "Observé", "Justification", "Conseil"]
     col_widths = [28, 10, 12, 45, 45, 45]
 
@@ -74,27 +63,23 @@ def export_to_excel(data, lang):
         ws.column_dimensions[get_column_letter(i)].width = w
     ws.row_dimensions[1].height = 30
 
-    # Data rows
     for row_idx, (criterion, content_data) in enumerate(data["evaluation"].items(), 2):
         score = content_data.get("score")
         applicable = content_data.get("applicable", True)
-        observed = content_data.get("observed_elements", "")
-        justif = content_data.get("justification", "")
-        advice = content_data.get("improvement_advice", "")
+        observed = content_data.get("observed_elements", "") or ""
+        justif = content_data.get("justification", "") or ""
+        advice = content_data.get("improvement_advice", "") or ""
 
         criterion_name = criterion.replace("_", " ").title()
         score_display = str(score) + " / 5" if score is not None else "N/A"
-        applicable_display = "Yes" if applicable else "No" if lang == "en" else ("Oui" if applicable else "Non")
+        applicable_display = ("Yes" if applicable else "No") if lang == "en" else ("Oui" if applicable else "Non")
 
-        row_data = [criterion_name, score_display, applicable_display, observed, justif, advice]
-
-        for col_idx, value in enumerate(row_data, 1):
+        for col_idx, value in enumerate([criterion_name, score_display, applicable_display, observed, justif, advice], 1):
             cell = ws.cell(row=row_idx, column=col_idx, value=value)
             cell.alignment = Alignment(wrap_text=True, vertical='top')
             cell.border = thin_border
             cell.font = normal_font
 
-        # Color score cell
         score_cell = ws.cell(row=row_idx, column=2)
         score_cell.font = Font(color="FFFFFF", bold=True, size=10)
         score_cell.alignment = Alignment(horizontal='center', vertical='center')
@@ -109,7 +94,6 @@ def export_to_excel(data, lang):
 
         ws.row_dimensions[row_idx].height = 80
 
-    # Global suggestions sheet
     ws2 = wb.create_sheet(title="Suggestions" if lang == "en" else "Suggestions globales")
     ws2.column_dimensions["A"].width = 80
     suggestions = data.get("global_improvement_suggestions", [])
@@ -118,7 +102,7 @@ def export_to_excel(data, lang):
     title_cell.fill = blue_fill
     title_cell.alignment = Alignment(wrap_text=True)
     for i, s in enumerate(suggestions, 2):
-        cell = ws2.cell(row=i, column=1, value=f"• {s}")
+        cell = ws2.cell(row=i, column=1, value="• " + s)
         cell.alignment = Alignment(wrap_text=True, vertical='top')
         cell.font = normal_font
         cell.border = thin_border
@@ -158,8 +142,7 @@ T = {
         "na": "N/A",
         "warning": "⚠️ Please fill in both fields before running the evaluation.",
         "error": "Error",
-        "flag": FLAG_ENG,
-        "label": "EN",
+        "export": "📥 Export to Excel",
     },
     "fr": {
         "badge": "Évaluation UX par IA",
@@ -182,17 +165,12 @@ T = {
         "na": "N/A",
         "warning": "⚠️ Remplis les deux champs avant de lancer l'évaluation.",
         "error": "Erreur",
-        "flag": FLAG_FR,
-        "label": "FR",
+        "export": "📥 Exporter en Excel",
     }
 }
 
-t = T[lang]
-other_lang = "fr" if lang == "en" else "en"
-other_t = T[other_lang]
-
-fr_active  = "background:#0a1a3a;border:1.5px solid #0050c8;color:white;" if lang=="fr" else "background:#111;border:1.5px solid #2a2a2a;color:#888;"
-en_active  = "background:#0a1a3a;border:1.5px solid #0050c8;color:white;" if lang=="en" else "background:#111;border:1.5px solid #2a2a2a;color:#888;"
+fr_active = "background:#0a1a3a;border:1.5px solid #0050c8;color:white;" if lang=="fr" else "background:#111;border:1.5px solid #2a2a2a;color:#888;"
+en_active = "background:#0a1a3a;border:1.5px solid #0050c8;color:white;" if lang=="en" else "background:#111;border:1.5px solid #2a2a2a;color:#888;"
 
 st.markdown(f"""
 <style>
@@ -204,37 +182,18 @@ st.markdown(f"""
   .hero-title {{ font-family:'Inter',sans-serif; font-size:3rem; font-weight:700; color:white; line-height:1.15; margin-bottom:0.3rem; }}
   .accent {{ color:#4d8bff; }}
   .hero-subtitle {{ font-family:'Inter',sans-serif; font-size:1rem; color:#aaa; margin-bottom:1rem; }}
-  .hero-desc {{ font-family:'Inter',sans-serif; font-size:0.9rem; color:#888; line-height:1.6; margin-bottom:1rem; }}
   .hero-link {{ font-family:'Inter',sans-serif; font-size:0.85rem; color:#4d8bff; }}
   .form-label {{ font-family:'Space Mono',monospace; font-size:0.72rem; letter-spacing:0.12em; color:#aaa; text-transform:uppercase; margin-bottom:0.5rem; }}
   textarea {{ background:#111 !important; border:1px solid #2a2a2a !important; border-radius:10px !important; color:#e0e0e0 !important; font-family:'Space Mono',monospace !important; font-size:0.85rem !important; }}
   textarea::placeholder {{ color:#555 !important; }}
-
-  /* Lang pills */
   .lang-pills {{ display:flex; gap:8px; justify-content:flex-end; padding-top:0.9rem; }}
-  .lang-pill {{
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    padding: 4px 10px 4px 6px;
-    border-radius: 20px;
-    font-family: 'Space Mono', monospace;
-    font-size: 0.72rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    text-decoration: none;
-    cursor: pointer;
-    transition: all 0.15s;
-  }}
+  .lang-pill {{ display:inline-flex; align-items:center; gap:6px; padding:4px 10px 4px 6px; border-radius:20px; font-family:'Space Mono',monospace; font-size:0.72rem; font-weight:700; letter-spacing:0.05em; text-decoration:none; cursor:pointer; transition:all 0.15s; }}
   .lang-pill img {{ width:20px; height:14px; object-fit:cover; border-radius:3px; display:block; }}
-  .lang-pill:hover {{ border-color: #0050c8 !important; color: white !important; }}
+  .lang-pill:hover {{ border-color:#0050c8 !important; color:white !important; }}
   .lang-pill-fr {{ {fr_active} }}
   .lang-pill-en {{ {en_active} }}
-
-  /* Eval button */
   .stButton {{ display:flex; justify-content:center; margin-top:1.5rem; }}
   .stButton > button {{ background:linear-gradient(90deg,#003189,#0050c8) !important; color:white !important; border:none !important; padding:0.75rem 2.5rem !important; border-radius:10px !important; font-family:'Space Mono',monospace !important; font-size:0.9rem !important; font-weight:700 !important; }}
-
   .results-title {{ font-family:'Inter',sans-serif; font-size:1.3rem; font-weight:700; color:white; margin:2rem 0 1.5rem 0; border-bottom:1px solid #1e1e1e; padding-bottom:0.8rem; }}
   .criterion-card {{ background:#111; border:1px solid #1e1e1e; border-left:4px solid #0050c8; border-radius:10px; padding:1.2rem 1.5rem; margin-bottom:1rem; }}
   .criterion-card.red {{ border-left-color:#e53935; }}
@@ -250,6 +209,8 @@ st.markdown(f"""
   .pill-gray {{ background:#1a1a1a; color:#777; }}
   .crit-detail {{ font-family:'Inter',sans-serif; font-size:0.92rem; color:#c0c0c0; margin-top:0.6rem; line-height:1.7; }}
   .crit-detail strong {{ color:#e0e0e0; }}
+  .crit-detail ul {{ margin:0.4rem 0 0 0; padding-left:1.3rem; }}
+  .crit-detail li {{ margin-bottom:0.3rem; }}
   .suggestions-box {{ background:#0a0f1a; border:1px solid #1a2a4a; border-radius:10px; padding:1.5rem; margin-top:2rem; }}
   .suggestions-box h3 {{ font-family:'Inter',sans-serif; color:#4d8bff; font-size:1rem; margin-bottom:1rem; }}
   .suggestions-box li {{ font-family:'Inter',sans-serif; font-size:0.92rem; color:#c0c0c0; margin-bottom:0.5rem; line-height:1.7; }}
@@ -260,7 +221,6 @@ st.markdown(f"""
 </style>
 """, unsafe_allow_html=True)
 
-# Navbar
 st.markdown(f"""
 <div style="display:flex;align-items:center;justify-content:space-between;padding:0.8rem 0;border-bottom:1px solid #1e1e1e;margin-bottom:2rem;">
   <img src="https://raw.githubusercontent.com/margauxlebecque3ds-pixel/agent-evaluator/master/DassaultSyst%C3%A8mesLogo.png" style="height:36px;width:auto;" />
@@ -282,7 +242,6 @@ st.markdown(f"""
   <div class="hero-badge"><span class="dot"></span> {t["badge"]}</div>
   <div class="hero-title">{t["title_line1"]}<br><span class="accent">{t["title_line2"]}</span></div>
   <div class="hero-subtitle">{t["subtitle"]}</div>
-  <div class="hero-desc">{t["desc"]}</div>
   <span class="hero-link">{t["link"]}</span>
 </div>
 """, unsafe_allow_html=True)
@@ -322,9 +281,10 @@ if st.button(t["button"]):
             else:
                 color = "green"; display_score = f"{score} / 5"; pill = "pill-green"
 
-            observed = content.get("observed_elements", "")
-            justif   = content.get("justification", "")
-            advice   = content.get("improvement_advice", "")
+            observed = content.get("observed_elements", "") or ""
+            justif   = content.get("justification", "") or ""
+            advice   = content.get("improvement_advice", "") or ""
+
             html = f'<div class="criterion-card {color}"><div class="crit-header"><div class="crit-name">{criterion_name}</div><div class="score-pill {pill}">{display_score}</div></div>'
             if observed:
                 html += f'<div class="crit-detail"><strong>🔍 {t["observed"]}:</strong> {format_text(observed)}</div>'
@@ -343,11 +303,9 @@ if st.button(t["button"]):
             s_html += "</ul></div>"
             st.markdown(s_html, unsafe_allow_html=True)
 
-        # Export button
-        export_label = "📥 Export to Excel" if lang == "en" else "📥 Exporter en Excel"
         excel_file = export_to_excel(data, lang)
         st.download_button(
-            label=export_label,
+            label=t["export"],
             data=excel_file,
             file_name="evaluation_results.xlsx",
             mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
