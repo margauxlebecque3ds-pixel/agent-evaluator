@@ -12,6 +12,10 @@ if "lang" in params:
     st.session_state.lang = params["lang"]
 
 def format_text(text):
+    # Handle lists directly -> bullet points
+    if isinstance(text, list):
+        items = "".join("<li>" + str(s) + "</li>" for s in text if s)
+        return "<ul style='margin:0.4rem 0 0 0;padding-left:1.3rem;'>" + items + "</ul>"
     if not text or not isinstance(text, str):
         return str(text) if text else ""
     check = text
@@ -74,7 +78,10 @@ def export_to_excel(data, lang):
         score_display = str(score) + " / 5" if score is not None else "N/A"
         applicable_display = ("Yes" if applicable else "No") if lang == "en" else ("Oui" if applicable else "Non")
 
-        for col_idx, value in enumerate([criterion_name, score_display, applicable_display, observed, justif, advice], 1):
+        def to_str(v):
+            if isinstance(v, list): return " | ".join(str(x) for x in v)
+            return str(v) if v is not None else ""
+        for col_idx, value in enumerate([criterion_name, score_display, applicable_display, to_str(observed), to_str(justif), to_str(advice)], 1):
             cell = ws.cell(row=row_idx, column=col_idx, value=value)
             cell.alignment = Alignment(wrap_text=True, vertical='top')
             cell.border = thin_border
