@@ -10,6 +10,28 @@ st.set_page_config(page_title="eval.ai", layout="wide", page_icon="🔬")
 params = st.query_params
 if "lang" in params:
     st.session_state.lang = params["lang"]
+
+
+import re as _re
+
+def format_text(text):
+    """Convert numbered lists or multi-sentence text into HTML bullet points."""
+    if not text:
+        return text
+    # Detect numbered patterns: 1) or 1. 
+    parts = _re.split(r'(?<!\d)\d+[).]\s+', text)
+    parts = [s.strip() for s in parts if s.strip()]
+    if len(parts) > 1:
+        items = "".join(f"<li>{s}</li>" for s in parts)
+        return f"<ul style='margin:0.4rem 0 0 0;padding-left:1.3rem;'>{items}</ul>"
+    # Split on ". " for multi-sentence text
+    sentences = _re.split(r'\.\s+', text.strip())
+    sentences = [s.strip() for s in sentences if len(s.strip()) > 20]
+    if len(sentences) > 1:
+        items = "".join(f"<li>{s}{'.' if not s.endswith('.') else ''}</li>" for s in sentences)
+        return f"<ul style='margin:0.4rem 0 0 0;padding-left:1.3rem;'>{items}</ul>"
+    return text
+
 if "lang" not in st.session_state:
     st.session_state.lang = "en"
 lang = st.session_state.lang
@@ -208,11 +230,11 @@ if st.button(t["button"]):
             advice   = content.get("improvement_advice", "")
             html = f'<div class="criterion-card {color}"><div class="crit-header"><div class="crit-name">{criterion_name}</div><div class="score-pill {pill}">{display_score}</div></div>'
             if observed:
-                html += f'<div class="crit-detail"><strong>🔍 {t["observed"]}:</strong> {observed}</div>'
+                html += f'<div class="crit-detail"><strong>🔍 {t["observed"]}:</strong> {format_text(observed)}</div>'
             if justif:
-                html += f'<div class="crit-detail"><strong>📋 {t["justification"]}:</strong> {justif}</div>'
+                html += f'<div class="crit-detail"><strong>📋 {t["justification"]}:</strong> {format_text(justif)}</div>'
             if advice and applicable and score is not None and score < 5:
-                html += f'<div class="crit-detail"><strong>💡 {t["advice"]}:</strong> {advice}</div>'
+                html += f'<div class="crit-detail"><strong>💡 {t["advice"]}:</strong> {format_text(advice)}</div>'
             html += "</div>"
             st.markdown(html, unsafe_allow_html=True)
 
