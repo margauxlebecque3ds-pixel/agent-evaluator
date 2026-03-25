@@ -58,127 +58,64 @@ if "lang" not in st.session_state:
 
 lang = st.session_state.lang
 
-st.markdown(f"""
+st.markdown("""
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap');
-
-  .stApp {{ background-color: #0d0d0d; color: #e0e0e0; }}
-  * {{ box-sizing: border-box; }}
-
-  .hero {{ text-align: center; padding: 2rem 1rem 3rem 1rem; max-width: 700px; margin: 0 auto; }}
-  .hero-badge {{
-    display: inline-flex; align-items: center; gap: 0.4rem;
-    background: #111; border: 1px solid #2a2a2a; border-radius: 20px;
-    padding: 0.3rem 1rem; font-family: 'Space Mono', monospace;
-    font-size: 0.75rem; color: #ccc; margin-bottom: 1.5rem;
-  }}
-  .dot {{ width: 7px; height: 7px; background: #0050c8; border-radius: 50%; display: inline-block; }}
-  .hero-title {{ font-family: 'Inter', sans-serif; font-size: 3rem; font-weight: 700; color: white; line-height: 1.15; margin-bottom: 0.3rem; }}
-  .accent {{ color: #4d8bff; }}
-  .hero-subtitle {{ font-family: 'Inter', sans-serif; font-size: 1rem; color: #aaa; margin-bottom: 1rem; }}
-  .hero-desc {{ font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #888; line-height: 1.6; margin-bottom: 1rem; }}
-  .hero-link {{ font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #4d8bff; }}
-
-  .form-label {{
-    font-family: 'Space Mono', monospace; font-size: 0.72rem;
-    letter-spacing: 0.12em; color: #aaa; text-transform: uppercase; margin-bottom: 0.5rem;
-  }}
-
-  textarea {{
-    background: #111 !important; border: 1px solid #2a2a2a !important;
-    border-radius: 10px !important; color: #e0e0e0 !important;
-    font-family: 'Space Mono', monospace !important; font-size: 0.85rem !important;
-  }}
-  textarea:focus {{ border-color: #0050c8 !important; box-shadow: 0 0 0 2px rgba(0,80,200,0.2) !important; }}
-  textarea::placeholder {{ color: #555 !important; }}
-
-  /* Lang switcher — tight group */
-  .lang-switcher {{
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
-    align-items: center;
-    padding-top: 0.9rem;
-  }}
-  .lang-btn {{
-    background: #111;
-    border: 1px solid #2a2a2a;
-    border-radius: 6px;
-    color: #aaa;
-    font-family: 'Space Mono', monospace;
-    font-size: 0.75rem;
-    font-weight: 700;
-    padding: 0.3rem 0.65rem;
-    cursor: pointer;
-    letter-spacing: 0.05em;
-    transition: all 0.15s;
-  }}
-  .lang-btn:hover {{ border-color: #0050c8; color: white; }}
-  .lang-btn.active {{ border-color: #0050c8; color: white; background: #0a1a3a; }}
-
-  /* Main eval button */
-  .stButton {{ display: flex; justify-content: center; margin-top: 1.5rem; }}
-  .stButton > button {{
-    background: linear-gradient(90deg, #003189, #0050c8); color: white; border: none;
-    padding: 0.75rem 2.5rem; border-radius: 10px; font-family: 'Space Mono', monospace;
-    font-size: 0.9rem; font-weight: 700; letter-spacing: 0.03em;
-  }}
-  .stButton > button:hover {{ opacity: 0.85; }}
-
-  /* Hide all other buttons in nav */
-  [data-testid="column"] .stButton > button {{
-    display: none !important;
-  }}
-
-  .results-title {{ font-family: 'Inter', sans-serif; font-size: 1.3rem; font-weight: 700; color: white; margin: 2rem 0 1.5rem 0; border-bottom: 1px solid #1e1e1e; padding-bottom: 0.8rem; }}
-
-  .criterion-card {{ background: #111; border: 1px solid #1e1e1e; border-left: 4px solid #0050c8; border-radius: 10px; padding: 1.2rem 1.5rem; margin-bottom: 1rem; }}
-  .criterion-card.red    {{ border-left-color: #e53935; }}
-  .criterion-card.orange {{ border-left-color: #f57c00; }}
-  .criterion-card.green  {{ border-left-color: #2e7d32; }}
-  .criterion-card.gray   {{ border-left-color: #444; }}
-
-  .crit-header {{ display: flex; flex-direction: row-reverse; justify-content: flex-end; align-items: center; gap: 1rem; margin-bottom: 0.8rem; }}
-  .crit-name {{ font-family: 'Inter', sans-serif; font-weight: 600; font-size: 1rem; color: #e0e0e0; }}
-  .score-pill {{ font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; padding: 0.3rem 1rem; border-radius: 20px; }}
-  .pill-red    {{ background: #2a1010; color: #e53935; }}
-  .pill-orange {{ background: #2a1a00; color: #f57c00; }}
-  .pill-green  {{ background: #0a2a0a; color: #4caf50; }}
-  .pill-gray   {{ background: #1a1a1a; color: #777; }}
-
-  .crit-detail {{ font-family: 'Inter', sans-serif; font-size: 0.92rem; color: #c0c0c0; margin-top: 0.6rem; line-height: 1.7; }}
-  .crit-detail strong {{ color: #e0e0e0; }}
-
-  .suggestions-box {{ background: #0a0f1a; border: 1px solid #1a2a4a; border-radius: 10px; padding: 1.5rem; margin-top: 2rem; }}
-  .suggestions-box h3 {{ font-family: 'Inter', sans-serif; color: #4d8bff; font-size: 1rem; margin-bottom: 1rem; }}
-  .suggestions-box li {{ font-family: 'Inter', sans-serif; font-size: 0.92rem; color: #c0c0c0; margin-bottom: 0.5rem; line-height: 1.7; }}
-
-  #MainMenu, footer, header {{ visibility: hidden; }}
-  .block-container {{ padding-top: 0 !important; }}
-  label {{ display: none !important; }}
-  hr {{ display: none; }}
+  .stApp { background-color: #0d0d0d; color: #e0e0e0; }
+  .hero { text-align: center; padding: 2rem 1rem 3rem 1rem; max-width: 700px; margin: 0 auto; }
+  .hero-badge { display: inline-flex; align-items: center; gap: 0.4rem; background: #111; border: 1px solid #2a2a2a; border-radius: 20px; padding: 0.3rem 1rem; font-family: 'Space Mono', monospace; font-size: 0.75rem; color: #ccc; margin-bottom: 1.5rem; }
+  .dot { width: 7px; height: 7px; background: #0050c8; border-radius: 50%; display: inline-block; }
+  .hero-title { font-family: 'Inter', sans-serif; font-size: 3rem; font-weight: 700; color: white; line-height: 1.15; margin-bottom: 0.3rem; }
+  .accent { color: #4d8bff; }
+  .hero-subtitle { font-family: 'Inter', sans-serif; font-size: 1rem; color: #aaa; margin-bottom: 1rem; }
+  .hero-desc { font-family: 'Inter', sans-serif; font-size: 0.9rem; color: #888; line-height: 1.6; margin-bottom: 1rem; }
+  .hero-link { font-family: 'Inter', sans-serif; font-size: 0.85rem; color: #4d8bff; }
+  .form-label { font-family: 'Space Mono', monospace; font-size: 0.72rem; letter-spacing: 0.12em; color: #aaa; text-transform: uppercase; margin-bottom: 0.5rem; }
+  textarea { background: #111 !important; border: 1px solid #2a2a2a !important; border-radius: 10px !important; color: #e0e0e0 !important; font-family: 'Space Mono', monospace !important; font-size: 0.85rem !important; }
+  textarea::placeholder { color: #555 !important; }
+  /* All buttons default — eval button */
+  .stButton { display: flex; justify-content: center; margin-top: 1.5rem; }
+  .stButton > button { background: linear-gradient(90deg, #003189, #0050c8) !important; color: white !important; border: none !important; padding: 0.75rem 2.5rem !important; border-radius: 10px !important; font-family: 'Space Mono', monospace !important; font-size: 0.9rem !important; font-weight: 700 !important; }
+  /* Lang buttons override */
+  div[data-testid="stHorizontalBlock"] .stButton { margin: 0 !important; display: block !important; }
+  div[data-testid="stHorizontalBlock"] .stButton > button { background: #111 !important; border: 1px solid #2a2a2a !important; color: #aaa !important; font-family: 'Space Mono', monospace !important; font-size: 0.72rem !important; font-weight: 700 !important; padding: 0.3rem 0.65rem !important; border-radius: 6px !important; min-height: unset !important; width: auto !important; letter-spacing: 0.05em !important; margin: 0 !important; }
+  div[data-testid="stHorizontalBlock"] .stButton > button:hover { border-color: #0050c8 !important; color: white !important; }
+  .results-title { font-family: 'Inter', sans-serif; font-size: 1.3rem; font-weight: 700; color: white; margin: 2rem 0 1.5rem 0; border-bottom: 1px solid #1e1e1e; padding-bottom: 0.8rem; }
+  .criterion-card { background: #111; border: 1px solid #1e1e1e; border-left: 4px solid #0050c8; border-radius: 10px; padding: 1.2rem 1.5rem; margin-bottom: 1rem; }
+  .criterion-card.red { border-left-color: #e53935; }
+  .criterion-card.orange { border-left-color: #f57c00; }
+  .criterion-card.green { border-left-color: #2e7d32; }
+  .criterion-card.gray { border-left-color: #444; }
+  .crit-header { display: flex; flex-direction: row-reverse; justify-content: flex-end; align-items: center; gap: 1rem; margin-bottom: 0.8rem; }
+  .crit-name { font-family: 'Inter', sans-serif; font-weight: 600; font-size: 1rem; color: #e0e0e0; }
+  .score-pill { font-family: 'Space Mono', monospace; font-size: 1.1rem; font-weight: 700; padding: 0.3rem 1rem; border-radius: 20px; }
+  .pill-red { background: #2a1010; color: #e53935; }
+  .pill-orange { background: #2a1a00; color: #f57c00; }
+  .pill-green { background: #0a2a0a; color: #4caf50; }
+  .pill-gray { background: #1a1a1a; color: #777; }
+  .crit-detail { font-family: 'Inter', sans-serif; font-size: 0.92rem; color: #c0c0c0; margin-top: 0.6rem; line-height: 1.7; }
+  .crit-detail strong { color: #e0e0e0; }
+  .suggestions-box { background: #0a0f1a; border: 1px solid #1a2a4a; border-radius: 10px; padding: 1.5rem; margin-top: 2rem; }
+  .suggestions-box h3 { font-family: 'Inter', sans-serif; color: #4d8bff; font-size: 1rem; margin-bottom: 1rem; }
+  .suggestions-box li { font-family: 'Inter', sans-serif; font-size: 0.92rem; color: #c0c0c0; margin-bottom: 0.5rem; line-height: 1.7; }
+  #MainMenu, footer, header { visibility: hidden; }
+  .block-container { padding-top: 0 !important; }
+  label { display: none !important; }
+  hr { display: none; }
 </style>
 """, unsafe_allow_html=True)
 
-# ── Navbar ─────────────────────────────────────────────────────────────────────
+# Navbar
 col_nav1, col_nav2 = st.columns([9, 1])
 with col_nav1:
     st.markdown("""
-    <div style="display:flex; align-items:center; gap:0.5rem; padding: 1rem 0 1rem 0; border-bottom: 1px solid #1e1e1e; margin-bottom: 2rem;">
-      <div style="background:#0050c8; color:white; width:32px; height:32px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:0.8rem;">3DS</div>
-      <span style="font-family:'Inter',sans-serif; font-weight:700; font-size:1.1rem; color:white;">eval.ai</span>
+    <div style="display:flex;align-items:center;gap:0.5rem;padding:1rem 0 1rem 0;border-bottom:1px solid #1e1e1e;margin-bottom:2rem;">
+      <div style="background:#0050c8;color:white;width:32px;height:32px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:0.8rem;">3DS</div>
+      <span style="font-family:'Inter',sans-serif;font-weight:700;font-size:1.1rem;color:white;">eval.ai</span>
     </div>
     """, unsafe_allow_html=True)
-
 with col_nav2:
-    active_fr  = "active" if lang == "fr" else ""
-    active_en  = "active" if lang == "en" else ""
-    st.markdown(f"""
-    <div class="lang-switcher">
-      <span class="lang-btn {active_fr}" onclick="void(0)">FR</span>
-      <span class="lang-btn {active_en}" onclick="void(0)">EN</span>
-    </div>
-    """, unsafe_allow_html=True)
+    st.markdown("<div style='display:flex;gap:8px;justify-content:flex-end;padding-top:0.9rem;'>", unsafe_allow_html=True)
     c1, c2 = st.columns(2)
     with c1:
         if st.button("FR", key="btn_fr"):
@@ -188,11 +125,11 @@ with col_nav2:
         if st.button("EN", key="btn_en"):
             st.session_state.lang = "en"
             st.rerun()
+    st.markdown("</div>", unsafe_allow_html=True)
 
 lang = st.session_state.lang
 t = T[lang]
 
-# ── Hero ───────────────────────────────────────────────────────────────────────
 st.markdown(f"""
 <div class="hero">
   <div class="hero-badge"><span class="dot"></span> {t["badge"]}</div>
@@ -203,7 +140,6 @@ st.markdown(f"""
 </div>
 """, unsafe_allow_html=True)
 
-# ── Inputs ─────────────────────────────────────────────────────────────────────
 col1, col2 = st.columns(2)
 with col1:
     st.markdown(f'<div class="form-label">{t["label_prompt"]}</div>', unsafe_allow_html=True)
@@ -216,7 +152,6 @@ if st.button(t["button"]):
     if prompt and response_agent:
         with st.spinner(t["spinner"]):
             evaluation = evaluate_response(prompt, response_agent, language=lang)
-
         try:
             from json_repair import repair_json
             data = json.loads(repair_json(evaluation))
@@ -231,7 +166,6 @@ if st.button(t["button"]):
             criterion_name = criterion.replace("_", " ").title()
             score = content.get("score")
             applicable = content.get("applicable", True)
-
             if not applicable or score is None:
                 color = "gray"; display_score = t["na"]; pill = "pill-gray"
             elif score <= 2:
@@ -244,7 +178,6 @@ if st.button(t["button"]):
             observed = content.get("observed_elements", "")
             justif   = content.get("justification", "")
             advice   = content.get("improvement_advice", "")
-
             html = f'<div class="criterion-card {color}"><div class="crit-header"><div class="crit-name">{criterion_name}</div><div class="score-pill {pill}">{display_score}</div></div>'
             if observed:
                 html += f'<div class="crit-detail"><strong>🔍 {t["observed"]}:</strong> {observed}</div>'
@@ -262,6 +195,5 @@ if st.button(t["button"]):
                 s_html += f"<li>{s}</li>"
             s_html += "</ul></div>"
             st.markdown(s_html, unsafe_allow_html=True)
-
     else:
         st.warning(t["warning"])
