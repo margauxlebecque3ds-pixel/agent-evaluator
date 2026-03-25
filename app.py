@@ -16,21 +16,22 @@ if "lang" in params:
 import re as _re
 
 def format_text(text):
-    """Convert numbered lists or multi-sentence text into HTML bullet points."""
     if not text:
         return text
-    # Detect numbered patterns: 1) or 1. 
-    parts = _re.split(r'(?<!\d)\d+[).]\s+', text)
-    parts = [s.strip() for s in parts if s.strip()]
+    # Split on numbered patterns like "1) " or "1. "
+    parts = text.replace(") ", "|SPLIT|")
+    check = text
+    for i in range(1, 20):
+        check = check.replace(str(i) + ") ", "|SPLIT|").replace(str(i) + ". ", "|SPLIT|")
+    parts = [s.strip() for s in check.split("|SPLIT|") if s.strip()]
     if len(parts) > 1:
-        items = "".join(f"<li>{s}</li>" for s in parts)
-        return f"<ul style='margin:0.4rem 0 0 0;padding-left:1.3rem;'>{items}</ul>"
-    # Split on ". " for multi-sentence text
-    sentences = _re.split(r'\.\s+', text.strip())
+        items = "".join("<li>" + s + "</li>" for s in parts)
+        return "<ul style='margin:0.4rem 0 0 0;padding-left:1.3rem;'>" + items + "</ul>"
+    sentences = text.strip().split(". ")
     sentences = [s.strip() for s in sentences if len(s.strip()) > 20]
     if len(sentences) > 1:
-        items = "".join(f"<li>{s}{'.' if not s.endswith('.') else ''}</li>" for s in sentences)
-        return f"<ul style='margin:0.4rem 0 0 0;padding-left:1.3rem;'>{items}</ul>"
+        items = "".join("<li>" + s + ("." if not s.endswith(".") else "") + "</li>" for s in sentences)
+        return "<ul style='margin:0.4rem 0 0 0;padding-left:1.3rem;'>" + items + "</ul>"
     return text
 
 
