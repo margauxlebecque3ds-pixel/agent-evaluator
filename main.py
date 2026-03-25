@@ -22,9 +22,17 @@ def call_main_agent(prompt):
     return response.choices[0].message.content
 
 # 2️⃣ Evaluator agent
-def evaluate_response(prompt, response_text):
+def evaluate_response(prompt, response_text, language="en"):
+
+    if language == "fr":
+        lang_instruction = "Réponds UNIQUEMENT en français. Tous les champs du JSON (observed_elements, justification, improvement_advice, global_improvement_suggestions) doivent être rédigés en français."
+    else:
+        lang_instruction = "Respond ONLY in English. All JSON fields (observed_elements, justification, improvement_advice, global_improvement_suggestions) must be written in English."
+
     evaluation_prompt = f"""
 You are a senior UX researcher specializing in AI agent evaluation within complex industrial software (CAD/simulation).
+
+LANGUAGE INSTRUCTION: {lang_instruction}
 
 Your task is to evaluate an AI agent's response against a heuristic framework specifically designed for AI agents in complex software environments (not simple chatbots). This framework was built upon Nielsen (1994) and extends it to AI agents in industrial contexts.
 
@@ -133,7 +141,7 @@ SCORING RUBRIC:
 
 CRITERION 8 — Interface & 3D Model Relationship
 The AI needs to tie together the conversation and what's happening in the model. It should be able to "see" what the user selects and "show" its answers visually inside the software.
-Sub-questions: Can the user point to a 3D object as the subject of a question? Can the AI highlight important areas in the 3D view (glyphs, surfaces, mesh) and key nodes in the tree? Does the agent stay in sync between the conversation and the current state of the 3D view in real time? Can it add or edit annotations directly on the model to illustrate its response?
+Sub-questions: Can the user point to a 3D object as the subject of a question? Can the AI highlight important areas in the 3D view and key nodes in the tree? Does the agent stay in sync between the conversation and the current state of the 3D view in real time? Can it add or edit annotations directly on the model to illustrate its response?
 NOT APPLICABLE if the response involves no 3D model interaction.
 
 SCORING RUBRIC:
@@ -188,9 +196,9 @@ OUTPUT FORMAT — STRICTLY VALID JSON — NO EXTRA TEXT
     "request_adequacy": {{
       "score": 0,
       "applicable": true,
-      "observed_elements": "Specific elements from the response that informed this score (quote or describe them, or note their absence).",
-      "justification": "At least 3 sentences explaining the score based on the rubric above.",
-      "improvement_advice": "Concrete and specific advice for the agent developer (not generic)."
+      "observed_elements": "...",
+      "justification": "...",
+      "improvement_advice": "..."
     }},
     "transparency_of_reasoning": {{
       "score": 0,
@@ -238,28 +246,28 @@ OUTPUT FORMAT — STRICTLY VALID JSON — NO EXTRA TEXT
       "score": null,
       "applicable": false,
       "observed_elements": "...",
-      "justification": "Explain why this criterion is not applicable to this response.",
+      "justification": "...",
       "improvement_advice": "..."
     }},
     "interoperability": {{
       "score": null,
       "applicable": false,
       "observed_elements": "...",
-      "justification": "Explain why this criterion is not applicable to this response.",
+      "justification": "...",
       "improvement_advice": "..."
     }},
     "consistency_over_time": {{
       "score": null,
       "applicable": false,
       "observed_elements": "...",
-      "justification": "Explain why this criterion is not applicable to this response.",
+      "justification": "...",
       "improvement_advice": "..."
     }}
   }},
   "global_improvement_suggestions": [
-    "High-priority suggestion 1",
-    "High-priority suggestion 2",
-    "High-priority suggestion 3"
+    "suggestion 1",
+    "suggestion 2",
+    "suggestion 3"
   ]
 }}
 
@@ -272,7 +280,6 @@ STRICT RULES:
 - Scores must strictly follow the rubric levels. Anchor your score to the rubric descriptor that best matches.
 - Respond ONLY with this JSON. No preamble, no explanation outside the JSON, no markdown code fences.
 """
-    # Mistral API call
     evaluation = client.chat.completions.create(
         model="mistral-large-latest",
         messages=[
@@ -281,15 +288,12 @@ STRICT RULES:
         ]
     ).choices[0].message.content
 
-    # Cleanup: strictly extract JSON if the model adds extra text
     match = re.search(r'\{.*\}', evaluation, re.DOTALL)
 
     if match:
         evaluation_json = match.group(0)
-
         try:
             data = json.loads(evaluation_json)
-
             for c in data["evaluation"]:
                 criterion = data["evaluation"][c]
                 if criterion.get("applicable") == False:
@@ -300,11 +304,8 @@ STRICT RULES:
                 if not isinstance(score, (int, float)):
                     continue
                 data["evaluation"][c]["score"] = max(0, min(5, score))
-
             return json.dumps(data)
-
         except json.JSONDecodeError:
             return evaluation_json
-
     else:
         return evaluation
