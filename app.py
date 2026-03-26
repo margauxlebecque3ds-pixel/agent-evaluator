@@ -1,7 +1,7 @@
 # app.py
 
 import streamlit as st
-from main import evaluate_response
+from main import evaluate_response, parse_conversation
 import json
 import io
 
@@ -377,7 +377,9 @@ if "last_results" in st.session_state and st.session_state.last_results:
     if is_multi:
         st.markdown(f'<div class="exchange-badge badge-multi">{res_t["multi_badge"]} <span class="exchange-count">{num_exchanges} {res_t["exchanges_detected"]}</span></div>', unsafe_allow_html=True)
 
-    st.markdown(f'<div class="results-title">{res_t["results_title"]}</div>', unsafe_allow_html=True)
+    n_ex = st.session_state.get("last_n_exchanges", 1)
+    mode_badge = f" &nbsp;<span style='font-size:0.75rem;background:#0a1a3a;border:1px solid #0050c8;color:#4d8bff;padding:2px 10px;border-radius:20px;font-family:Space Mono,monospace;'>{n_ex} exchange{'s' if n_ex > 1 else ''}</span>" if n_ex > 1 else ""
+    st.markdown(f'<div class="results-title">{res_t["results_title"]}{mode_badge}</div>', unsafe_allow_html=True)
 
     for criterion, content_item in data["evaluation"].items():
         criterion_name = criterion.replace("_", " ").title()
