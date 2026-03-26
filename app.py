@@ -216,6 +216,22 @@ st.markdown(f"""
   .exchange-count {{ background:#0050c8; color:white; border-radius:10px; padding:0.1rem 0.5rem; font-size:0.7rem; margin-left:0.3rem; }}
   textarea {{ background:#111 !important; border:1px solid #2a2a2a !important; border-radius:10px !important; color:#e0e0e0 !important; font-family:'Space Mono',monospace !important; font-size:0.85rem !important; }}
   textarea::placeholder {{ color:#555 !important; }}
+  textarea:focus {{ border-color:#0050c8 !important; box-shadow:0 0 0 2px rgba(0,80,200,0.15) !important; outline:none !important; }}
+  /* Override Streamlit red focus on all inputs */
+  [data-baseweb="input"]:focus-within,
+  [data-baseweb="textarea"]:focus-within {{
+    border-color:#0050c8 !important;
+    box-shadow:0 0 0 2px rgba(0,80,200,0.15) !important;
+  }}
+  /* Mode switcher active tab underline */
+  button[data-testid="baseButton-secondary"]:focus {{
+    border-color:#0050c8 !important;
+    box-shadow:none !important;
+    outline:none !important;
+  }}
+  /* Red line under tabs -> blue */
+  [data-testid="stMarkdownContainer"] hr {{ display:none; }}
+  div[role="tab"][aria-selected="true"] {{ border-bottom:2px solid #0050c8 !important; }}
   .lang-pills {{ display:flex; gap:8px; justify-content:flex-end; padding-top:0.9rem; }}
   .lang-pill {{ display:inline-flex; align-items:center; gap:6px; padding:4px 10px 4px 6px; border-radius:20px; font-family:'Space Mono',monospace; font-size:0.72rem; font-weight:700; letter-spacing:0.05em; text-decoration:none; cursor:pointer; transition:all 0.15s; }}
   .lang-pill img {{ width:20px; height:14px; object-fit:cover; border-radius:3px; display:block; }}
@@ -251,6 +267,16 @@ st.markdown(f"""
   .block-container {{ padding-top:0 !important; }}
   label {{ display:none !important; }}
   hr {{ display:none; }}
+
+  /* Override Streamlit red accent with blue */
+  .stTabs [data-baseweb="tab-highlight"] {{ background-color: #0050c8 !important; }}
+  .stTabs [data-baseweb="tab"] {{ color: #aaa !important; font-family:'Space Mono',monospace !important; font-size:0.8rem !important; }}
+  .stTabs [aria-selected="true"] {{ color: white !important; }}
+  textarea:focus {{ border-color: #0050c8 !important; box-shadow: 0 0 0 2px rgba(0,80,200,0.15) !important; outline: none !important; }}
+  input:focus {{ border-color: #0050c8 !important; box-shadow: 0 0 0 2px rgba(0,80,200,0.15) !important; }}
+  [data-baseweb="input"]:focus-within {{ border-color: #0050c8 !important; }}
+  :root {{ --primary: #0050c8 !important; }}
+  .stButton > button:focus {{ border-color: #0050c8 !important; box-shadow: 0 0 0 2px rgba(0,80,200,0.15) !important; }}
 </style>
 """, unsafe_allow_html=True)
 
