@@ -1,7 +1,7 @@
 # app.py
 
 import streamlit as st
-from main import evaluate_response, parse_conversation
+from main import evaluate_response
 import json
 import io
 
