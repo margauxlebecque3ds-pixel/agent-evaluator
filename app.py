@@ -273,50 +273,60 @@ if st.button(t["button"]):
             st.code(evaluation)
             st.stop()
 
-        st.markdown(f'<div class="results-title">{t["results_title"]}</div>', unsafe_allow_html=True)
+        st.session_state.last_results = data
+        st.session_state.last_lang = lang
 
-        for criterion, content in data["evaluation"].items():
-            criterion_name = criterion.replace("_", " ").title()
-            score = content.get("score")
-            applicable = content.get("applicable", True)
-            if not applicable or score is None:
-                color = "gray"; display_score = t["na"]; pill = "pill-gray"
-            elif score <= 2:
-                color = "red"; display_score = f"{score} / 5"; pill = "pill-red"
-            elif score <= 4:
-                color = "orange"; display_score = f"{score} / 5"; pill = "pill-orange"
-            else:
-                color = "green"; display_score = f"{score} / 5"; pill = "pill-green"
-
-            observed = content.get("observed_elements", "") or ""
-            justif   = content.get("justification", "") or ""
-            advice   = content.get("improvement_advice", "") or ""
-
-            html = f'<div class="criterion-card {color}"><div class="crit-header"><div class="crit-name">{criterion_name}</div><div class="score-pill {pill}">{display_score}</div></div>'
-            if observed:
-                html += f'<div class="crit-detail"><strong>🔍 {t["observed"]}:</strong> {format_text(observed)}</div>'
-            if justif:
-                html += f'<div class="crit-detail"><strong>📋 {t["justification"]}:</strong> {format_text(justif)}</div>'
-            if advice and applicable and score is not None and score < 5:
-                html += f'<div class="crit-detail"><strong>💡 {t["advice"]}:</strong> {format_text(advice)}</div>'
-            html += "</div>"
-            st.markdown(html, unsafe_allow_html=True)
-
-        suggestions = data.get("global_improvement_suggestions", [])
-        if suggestions:
-            s_html = f'<div class="suggestions-box"><h3>{t["suggestions_title"]}</h3><ul>'
-            for s in suggestions:
-                s_html += f"<li>{s}</li>"
-            s_html += "</ul></div>"
-            st.markdown(s_html, unsafe_allow_html=True)
-
-        excel_file = export_to_excel(data, lang)
-        st.download_button(
-            label=t["export"],
-            data=excel_file,
-            file_name="evaluation_results.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        )
 
     else:
         st.warning(t["warning"])
+
+# Show previous results if available
+if "last_results" in st.session_state and st.session_state.last_results:
+    data = st.session_state.last_results
+    res_lang = st.session_state.get("last_lang", lang)
+    res_t = T[res_lang]
+
+    st.markdown(f'<div class="results-title">{res_t["results_title"]}</div>', unsafe_allow_html=True)
+
+    for criterion, content_item in data["evaluation"].items():
+        criterion_name = criterion.replace("_", " ").title()
+        score = content_item.get("score")
+        applicable = content_item.get("applicable", True)
+        if not applicable or score is None:
+            color = "gray"; display_score = res_t["na"]; pill = "pill-gray"
+        elif score <= 2:
+            color = "red"; display_score = f"{score} / 5"; pill = "pill-red"
+        elif score <= 4:
+            color = "orange"; display_score = f"{score} / 5"; pill = "pill-orange"
+        else:
+            color = "green"; display_score = f"{score} / 5"; pill = "pill-green"
+
+        observed = content_item.get("observed_elements", "") or ""
+        justif   = content_item.get("justification", "") or ""
+        advice   = content_item.get("improvement_advice", "") or ""
+
+        html = f'<div class="criterion-card {color}"><div class="crit-header"><div class="crit-name">{criterion_name}</div><div class="score-pill {pill}">{display_score}</div></div>'
+        if observed:
+            html += f'<div class="crit-detail"><strong>🔍 {res_t["observed"]}:</strong> {format_text(observed)}</div>'
+        if justif:
+            html += f'<div class="crit-detail"><strong>📋 {res_t["justification"]}:</strong> {format_text(justif)}</div>'
+        if advice and applicable and score is not None and score < 5:
+            html += f'<div class="crit-detail"><strong>💡 {res_t["advice"]}:</strong> {format_text(advice)}</div>'
+        html += "</div>"
+        st.markdown(html, unsafe_allow_html=True)
+
+    suggestions = data.get("global_improvement_suggestions", [])
+    if suggestions:
+        s_html = f'<div class="suggestions-box"><h3>{res_t["suggestions_title"]}</h3><ul>'
+        for s in suggestions:
+            s_html += f"<li>{s}</li>"
+        s_html += "</ul></div>"
+        st.markdown(s_html, unsafe_allow_html=True)
+
+    excel_file = export_to_excel(data, res_lang)
+    st.download_button(
+        label=res_t["export"],
+        data=excel_file,
+        file_name="evaluation_results.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
