@@ -31,6 +31,62 @@ def format_text(text):
         return "<ul style='margin:0.4rem 0 0 0;padding-left:1.3rem;'>" + items + "</ul>"
     return text
 
+def display_results(data, res_lang, n_ex):
+    """Display evaluation results for a given dataset."""
+    res_t = T[res_lang]
+    mode_badge = f" &nbsp;<span style='font-size:0.75rem;background:#0a1a3a;border:1px solid #0050c8;color:#4d8bff;padding:2px 10px;border-radius:20px;font-family:Space Mono,monospace;'>{n_ex} exchange{'s' if n_ex > 1 else ''}</span>" if n_ex > 1 else ""
+    st.markdown(f'<div class="results-title">{res_t["results_title"]}{mode_badge}</div>', unsafe_allow_html=True)
+
+    for criterion, content_item in data["evaluation"].items():
+        criterion_name = criterion.replace("_", " ").title()
+        score = content_item.get("score")
+        applicable = content_item.get("applicable", True)
+        if not applicable or score is None:
+            color = "gray"; display_score = res_t["na"]; pill = "pill-gray"
+        elif score <= 2:
+            color = "red"; display_score = f"{score} / 5"; pill = "pill-red"
+        elif score <= 4:
+            color = "orange"; display_score = f"{score} / 5"; pill = "pill-orange"
+        else:
+            color = "green"; display_score = f"{score} / 5"; pill = "pill-green"
+
+        observed = content_item.get("observed_elements", "") or ""
+        justif   = content_item.get("justification", "") or ""
+        advice   = content_item.get("improvement_advice", "") or ""
+        prob_exchange = content_item.get("problematic_exchange") or ""
+        prob_detail   = content_item.get("problematic_detail") or ""
+
+        html = f'<div class="criterion-card {color}"><div class="crit-header"><div class="crit-name">{criterion_name}</div><div class="score-pill {pill}">{display_score}</div></div>'
+        if observed:
+            html += f'<div class="crit-detail"><strong>🔍 {res_t["observed"]}:</strong> {format_text(observed)}</div>'
+        if justif:
+            html += f'<div class="crit-detail"><strong>📋 {res_t["justification"]}:</strong> {format_text(justif)}</div>'
+        if prob_exchange:
+            html += f'<div class="problematic-box">⚠️ {res_t.get("problematic", "Problematic exchange")}: {prob_exchange}'
+            if prob_detail:
+                html += f' — {prob_detail}'
+            html += '</div>'
+        if advice and applicable and score is not None and score < 5:
+            html += f'<div class="crit-detail"><strong>💡 {res_t["advice"]}:</strong> {format_text(advice)}</div>'
+        html += "</div>"
+        st.markdown(html, unsafe_allow_html=True)
+
+    suggestions = data.get("global_improvement_suggestions", [])
+    if suggestions:
+        s_html = f'<div class="suggestions-box"><h3>{res_t["suggestions_title"]}</h3><ul>'
+        for s in suggestions:
+            s_html += f"<li>{s}</li>"
+        s_html += "</ul></div>"
+        st.markdown(s_html, unsafe_allow_html=True)
+
+    excel_file = export_to_excel(data, res_lang)
+    st.download_button(
+        label=res_t["export"],
+        data=excel_file,
+        file_name="evaluation_results.xlsx",
+        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+    )
+
 def export_to_excel(data, lang):
     import openpyxl
     from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
@@ -335,6 +391,14 @@ with tab1:
         else:
             st.warning(t["warning"])
 
+    # Show single results inside tab1
+    if "last_results_single" in st.session_state and st.session_state["last_results_single"]:
+        display_results(
+            st.session_state["last_results_single"],
+            st.session_state.get("last_lang_single", lang),
+            st.session_state.get("last_n_exchanges_single", 1)
+        )
+
 with tab2:
     st.markdown(f'<div class="form-label">{t["label_conversation"]}</div>', unsafe_allow_html=True)
 
@@ -367,68 +431,10 @@ with tab2:
         else:
             st.warning(t["warning"])
 
-# Display results
-eval_mode = st.session_state.get("eval_mode", "single")
-if f"last_results_{eval_mode}" in st.session_state and st.session_state[f"last_results_{eval_mode}"]:
-    data = st.session_state[f"last_results_{eval_mode}"]
-    res_lang = st.session_state.get(f"last_lang_{eval_mode}", lang)
-    res_t = T[res_lang]
-    is_multi = data.get("is_multi_exchange", False)
-    num_exchanges = data.get("num_exchanges", 1)
-
-    if is_multi:
-        st.markdown(f'<div class="exchange-badge badge-multi">{res_t["multi_badge"]} <span class="exchange-count">{num_exchanges} {res_t["exchanges_detected"]}</span></div>', unsafe_allow_html=True)
-
-    n_ex = st.session_state.get(f"last_n_exchanges_{eval_mode}", 1)
-    mode_badge = f" &nbsp;<span style='font-size:0.75rem;background:#0a1a3a;border:1px solid #0050c8;color:#4d8bff;padding:2px 10px;border-radius:20px;font-family:Space Mono,monospace;'>{n_ex} exchange{'s' if n_ex > 1 else ''}</span>" if n_ex > 1 else ""
-    st.markdown(f'<div class="results-title">{res_t["results_title"]}{mode_badge}</div>', unsafe_allow_html=True)
-
-    for criterion, content_item in data["evaluation"].items():
-        criterion_name = criterion.replace("_", " ").title()
-        score = content_item.get("score")
-        applicable = content_item.get("applicable", True)
-        if not applicable or score is None:
-            color = "gray"; display_score = res_t["na"]; pill = "pill-gray"
-        elif score <= 2:
-            color = "red"; display_score = f"{score} / 5"; pill = "pill-red"
-        elif score <= 4:
-            color = "orange"; display_score = f"{score} / 5"; pill = "pill-orange"
-        else:
-            color = "green"; display_score = f"{score} / 5"; pill = "pill-green"
-
-        observed = content_item.get("observed_elements", "") or ""
-        justif   = content_item.get("justification", "") or ""
-        advice   = content_item.get("improvement_advice", "") or ""
-        prob_exchange = content_item.get("problematic_exchange") or ""
-        prob_detail   = content_item.get("problematic_detail") or ""
-
-        html = f'<div class="criterion-card {color}"><div class="crit-header"><div class="crit-name">{criterion_name}</div><div class="score-pill {pill}">{display_score}</div></div>'
-        if observed:
-            html += f'<div class="crit-detail"><strong>🔍 {res_t["observed"]}:</strong> {format_text(observed)}</div>'
-        if justif:
-            html += f'<div class="crit-detail"><strong>📋 {res_t["justification"]}:</strong> {format_text(justif)}</div>'
-        if prob_exchange:
-            html += f'<div class="problematic-box">⚠️ {res_t["problematic"]}: {prob_exchange}'
-            if prob_detail:
-                html += f' — {prob_detail}'
-            html += '</div>'
-        if advice and applicable and score is not None and score < 5:
-            html += f'<div class="crit-detail"><strong>💡 {res_t["advice"]}:</strong> {format_text(advice)}</div>'
-        html += "</div>"
-        st.markdown(html, unsafe_allow_html=True)
-
-    suggestions = data.get("global_improvement_suggestions", [])
-    if suggestions:
-        s_html = f'<div class="suggestions-box"><h3>{res_t["suggestions_title"]}</h3><ul>'
-        for s in suggestions:
-            s_html += f"<li>{s}</li>"
-        s_html += "</ul></div>"
-        st.markdown(s_html, unsafe_allow_html=True)
-
-    excel_file = export_to_excel(data, res_lang)
-    st.download_button(
-        label=res_t["export"],
-        data=excel_file,
-        file_name="evaluation_results.xlsx",
-        mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-    )
+    # Show multi results inside tab2
+    if "last_results_multi" in st.session_state and st.session_state["last_results_multi"]:
+        display_results(
+            st.session_state["last_results_multi"],
+            st.session_state.get("last_lang_multi", lang),
+            st.session_state.get("last_n_exchanges_multi", 1)
+        )
