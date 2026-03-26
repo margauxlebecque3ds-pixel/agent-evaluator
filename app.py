@@ -325,9 +325,9 @@ with tab1:
             try:
                 from json_repair import repair_json
                 data = json.loads(repair_json(evaluation))
-                st.session_state.last_results = data
-                st.session_state.last_lang = lang
-                st.session_state.last_mode = "single"
+                st.session_state["last_results_single"] = data
+                st.session_state["last_lang_single"] = lang
+                st.session_state["last_n_exchanges_single"] = 1
             except Exception as e:
                 st.error(f"{t['error']} : {e}")
                 st.code(evaluation)
@@ -356,9 +356,10 @@ with tab2:
             try:
                 from json_repair import repair_json
                 data = json.loads(repair_json(evaluation))
-                st.session_state.last_results = data
-                st.session_state.last_lang = lang
-                st.session_state.last_mode = "multi"
+                st.session_state["last_results_multi"] = data
+                st.session_state["last_lang_multi"] = lang
+                n_ex = len([e for e in (parse_conversation(conv_input) or []) if e["role"] == "USER"])
+                st.session_state["last_n_exchanges_multi"] = n_ex
             except Exception as e:
                 st.error(f"{t['error']} : {e}")
                 st.code(evaluation)
