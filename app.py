@@ -352,7 +352,7 @@ with tab2:
     if st.button(t["button"], key="btn_multi"):
         if conv_input:
             with st.spinner(t["spinner"]):
-                evaluation = evaluate_response(conv_input, language=lang)
+                evaluation = evaluate_response("", "", language=lang, mode="multi", conversation_raw=conv_input)
             try:
                 from json_repair import repair_json
                 data = json.loads(repair_json(evaluation))
