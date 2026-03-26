@@ -367,6 +367,7 @@ with tab2:
             st.warning(t["warning"])
 
 # Display results
+eval_mode = st.session_state.get("eval_mode", "single")
 if f"last_results_{eval_mode}" in st.session_state and st.session_state[f"last_results_{eval_mode}"]:
     data = st.session_state[f"last_results_{eval_mode}"]
     res_lang = st.session_state.get(f"last_lang_{eval_mode}", lang)
