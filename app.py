@@ -367,9 +367,9 @@ with tab2:
             st.warning(t["warning"])
 
 # Display results
-if "last_results" in st.session_state and st.session_state.last_results:
-    data = st.session_state.last_results
-    res_lang = st.session_state.get("last_lang", lang)
+if f"last_results_{eval_mode}" in st.session_state and st.session_state[f"last_results_{eval_mode}"]:
+    data = st.session_state[f"last_results_{eval_mode}"]
+    res_lang = st.session_state.get(f"last_lang_{eval_mode}", lang)
     res_t = T[res_lang]
     is_multi = data.get("is_multi_exchange", False)
     num_exchanges = data.get("num_exchanges", 1)
@@ -377,7 +377,7 @@ if "last_results" in st.session_state and st.session_state.last_results:
     if is_multi:
         st.markdown(f'<div class="exchange-badge badge-multi">{res_t["multi_badge"]} <span class="exchange-count">{num_exchanges} {res_t["exchanges_detected"]}</span></div>', unsafe_allow_html=True)
 
-    n_ex = st.session_state.get("last_n_exchanges", 1)
+    n_ex = st.session_state.get(f"last_n_exchanges_{eval_mode}", 1)
     mode_badge = f" &nbsp;<span style='font-size:0.75rem;background:#0a1a3a;border:1px solid #0050c8;color:#4d8bff;padding:2px 10px;border-radius:20px;font-family:Space Mono,monospace;'>{n_ex} exchange{'s' if n_ex > 1 else ''}</span>" if n_ex > 1 else ""
     st.markdown(f'<div class="results-title">{res_t["results_title"]}{mode_badge}</div>', unsafe_allow_html=True)
 
