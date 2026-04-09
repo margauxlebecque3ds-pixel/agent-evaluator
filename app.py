@@ -359,12 +359,13 @@ if "disclaimer_open" not in st.session_state:
 
 if st.session_state.disclaimer_open:
     disclaimer_text = (
-        "🚧 <strong>Work in progress</strong> — fully usable! Feedback is very welcome 😊<br>"
-        "<span style='opacity:0.8'>Made with ❤️ by <em>Margaux Lebecque</em>, apprentice @ SIMULIA · Dassault Systèmes</span>"
+        "🚧 <strong>Tool in active development</strong> — but fully usable! Continuously improving for a better experience. Your feedback is welcome, enjoy! 😊<br>"
+        "<span style='opacity:0.8'>— <em>Margaux Lebecque</em>, UX Designer apprentice at SIMULIA</span>"
     ) if lang == "en" else (
-        "🚧 <strong>Outil en cours de développement</strong> — utilisable ! Vos retours sont les bienvenus 😊<br>"
-        "<span style='opacity:0.8'>Fait avec ❤️ par <em>Margaux Lebecque</em>, alternante @ SIMULIA · Dassault Systèmes</span>"
+        "🚧 <strong>L'outil est toujours en production</strong> mais reste utilisable ! Il est en amélioration continue pour une meilleure utilisation. Vos retours sont les bienvenus, enjoy ! 😊<br>"
+        "<span style='opacity:0.8'>— <em>Margaux Lebecque</em>, alternante UX Designer chez SIMULIA</span>"
     )
+   
     ok_label = "OK, got it ✓" if lang == "en" else "OK, compris ✓"
     col_disc, col_btn = st.columns([8, 1])
     with col_disc:
