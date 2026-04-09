@@ -322,6 +322,7 @@ st.markdown(f"""
   #MainMenu, footer, header {{ visibility:hidden; }}
   .block-container {{ padding-top:0 !important; }}
   label {{ display:none !important; }}
+  [data-testid="stFileUploader"] label {{ display:block !important; color:#aaa !important; font-family:'Space Mono',monospace !important; font-size:0.72rem !important; letter-spacing:0.12em !important; text-transform:uppercase !important; }}
   hr {{ display:none; }}
 
   /* Override Streamlit red accent with blue */
@@ -354,19 +355,19 @@ st.markdown(f"""
 t = T[lang]
 
 # Disclaimer
-expander_label = "🛠️ About this tool" if lang == "en" else "🛠️ A propos de l'outil"
+expander_label = "🚧 Work in progress — click to read" if lang == "en" else "🚧 En cours de développement — cliquez pour lire"
 with st.expander(expander_label):
     if lang == "en":
         st.markdown(
             "Tool in active development — but fully usable! Continuously improving for a better experience. "
-            "Your feedback is welcome, enjoy! <br>"
+            "Your feedback is welcome, enjoy! 😊<br>"
             "— *Margaux Lebecque*, UX Designer apprentice @ SIMULIA",
             unsafe_allow_html=True
         )
     else:
         st.markdown(
             "L'outil est toujours en production mais reste utilisable ! Il est en amélioration continue "
-            "pour une meilleure utilisation. Vos retours sont les bienvenus, enjoy ! <br>"
+            "pour une meilleure utilisation. Vos retours sont les bienvenus, enjoy ! 😊<br>"
             "— *Margaux Lebecque*, alternante UX Designer @ SIMULIA",
             unsafe_allow_html=True
         )
@@ -392,10 +393,19 @@ with tab1:
         st.markdown(f'<div class="form-label">{t["label_single_response"]}</div>', unsafe_allow_html=True)
         single_response = st.text_area("r", height=180, placeholder=t["placeholder_single_response"], label_visibility="collapsed")
 
+    # Optional image upload
+    img_label = "📎 Add a screenshot of the interface (optional — for 3D criterion)" if lang == "en" else "📎 Ajouter une capture d'écran de l'interface (optionnel — pour le critère 3D)"
+    uploaded_image = st.file_uploader(img_label, type=["png", "jpg", "jpeg"], key="img_upload", label_visibility="visible")
+
     if st.button(t["button"], key="btn_single"):
         if single_prompt and single_response:
             with st.spinner(t["spinner"]):
-                evaluation = evaluate_response(single_prompt, single_response, language=lang)
+                # Encode image if provided
+                image_b64 = None
+                if uploaded_image:
+                    import base64
+                    image_b64 = base64.b64encode(uploaded_image.read()).decode("utf-8")
+                evaluation = evaluate_response(single_prompt, single_response, language=lang, image_b64=image_b64)
             try:
                 from json_repair import repair_json
                 data = json.loads(repair_json(evaluation))

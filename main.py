@@ -57,7 +57,45 @@ def format_conversation_for_prompt(exchanges):
         lines.append("")
     return "\n".join(lines)
 
-def evaluate_response(prompt, response_text, language="en", mode="single", conversation_raw=""):
+def analyze_interface_image(image_b64):
+    """Send image to Pixtral for 3D interface analysis."""
+    try:
+        pixtral_client = OpenAI(
+            api_key=os.getenv("MISTRAL_API_KEY"),
+            base_url="https://api.mistral.ai/v1"
+        )
+        response = pixtral_client.chat.completions.create(
+            model="pixtral-12b-2409",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image_url",
+                            "image_url": f"data:image/png;base64,{image_b64}"
+                        },
+                        {
+                            "type": "text",
+                            "text": """You are a UX researcher analyzing a screenshot from a CAD/simulation software interface (Dassault Systèmes SIMULIA / 3DEXPERIENCE).
+
+Analyze this screenshot and describe:
+1. What is visible in the 3D view (objects, selections, highlights, mesh, annotations)?
+2. Is there any visual feedback from the AI agent (LEO) on the 3D model (highlighted zones, color changes, annotations, glyphs)?
+3. Does the interface state seem to reflect an action performed by the AI agent?
+4. What is the overall state of the interface (which panels are open, what is selected)?
+
+Be specific and concise. This analysis will be used to evaluate the AI agent's ability to interact with the 3D interface."""
+                        }
+                    ]
+                }
+            ],
+            max_tokens=500
+        )
+        return response.choices[0].message.content
+    except Exception as e:
+        return f"Image analysis unavailable: {str(e)}"
+
+def evaluate_response(prompt, response_text, language="en", mode="single", conversation_raw="", image_b64=None):
     if language == "fr":
         lang_instruction = "Réponds UNIQUEMENT en français. Tous les champs du JSON doivent être rédigés en français."
     else:
@@ -65,6 +103,17 @@ def evaluate_response(prompt, response_text, language="en", mode="single", conve
 
     # ── SINGLE EXCHANGE MODE ──────────────────────────────────────────────────
     if mode == "single":
+        # Analyze image if provided
+        image_analysis_text = ""
+        if image_b64:
+            image_analysis = analyze_interface_image(image_b64)
+            image_analysis_text = f"""
+
+INTERFACE SCREENSHOT ANALYSIS (use this to evaluate Criterion 8 — Interface & 3D Model Relationship):
+{image_analysis}
+
+Based on this screenshot analysis, Criterion 8 IS NOW APPLICABLE. Score it based on what you can observe in the interface.
+"""
         evaluation_prompt = f"""
 You are a senior UX researcher specializing in AI agent evaluation within complex industrial software (CAD/simulation).
 
@@ -125,7 +174,7 @@ NOT APPLICABLE for a single exchange.
 
 USER PROMPT: {prompt}
 AGENT RESPONSE: {response_text}
-
+{image_analysis_text}
 OUTPUT — STRICTLY VALID JSON — NO EXTRA TEXT:
 {{
   "evaluation": {{
