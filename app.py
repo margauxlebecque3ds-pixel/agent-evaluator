@@ -353,7 +353,7 @@ st.markdown(f"""
 
 t = T[lang]
 
-disclaimer = "🚧 Tool in active development — fully usable! Feedback welcome 😊 — <em>Margaux Marie Lebecque, apprentice @ SIMULIA</em>" if lang == "en" else "🚧 Outil en cours de développement — utilisable ! Vos retours sont bienvenus 😊 — <em>Margaux Lebecque, alternante @ SIMULIA</em>"
+disclaimer = "🚧 Tool in active development — fully usable! Feedback welcome 😊 — <em>Margaux Lebecque, apprentice @ SIMULIA</em>" if lang == "en" else "🚧 Outil en cours de développement — utilisable ! Vos retours sont bienvenus 😊 — <em>Margaux Lebecque, alternante @ SIMULIA</em>"
 st.markdown(f'''<div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:#555;background:#0d0d0d;border:1px solid #1e1e1e;border-radius:8px;padding:0.4rem 0.9rem;display:inline-block;margin-bottom:1rem;">''' + disclaimer + '''</div>''', unsafe_allow_html=True)
 
 st.markdown(f"""
