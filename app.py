@@ -323,6 +323,7 @@ st.markdown(f"""
   .block-container {{ padding-top:0 !important; }}
   label {{ display:none !important; }}
   [data-testid="stFileUploader"] label {{ display:block !important; color:#aaa !important; font-family:'Space Mono',monospace !important; font-size:0.72rem !important; letter-spacing:0.12em !important; text-transform:uppercase !important; }}
+  [data-testid="stTextArea"][aria-label*="comment"] label, [data-testid="stTextArea"][aria-label*="commentaire"] label {{ display:block !important; color:#aaa !important; font-family:'Space Mono',monospace !important; font-size:0.72rem !important; }}
   hr {{ display:none; }}
 
   /* Override Streamlit red accent with blue */
@@ -393,8 +394,12 @@ with tab1:
         st.markdown(f'<div class="form-label">{t["label_single_response"]}</div>', unsafe_allow_html=True)
         single_response = st.text_area("r", height=180, placeholder=t["placeholder_single_response"], label_visibility="collapsed")
 
+    # Optional comment
+    comment_label = "💬 Add a comment (optional — e.g. describe what LEO did on the interface)" if lang == "en" else "💬 Ajouter un commentaire (optionnel — ex : décrire ce que LEO a fait sur l'interface)"
+    user_comment = st.text_area(comment_label, height=80, placeholder=("E.g. LEO highlighted the mesh zone in red after my request…" if lang == "en" else "Ex : LEO a mis en évidence la zone de mesh en rouge après ma demande…"), key="user_comment", label_visibility="visible")
+
     # Optional image upload
-    img_label = "📎📎Optional : Add screenshots/images" if lang == "en" else "📎Optionnel : Ajouter des images"
+    img_label = "📎 Add a screenshot of the interface (optional — for 3D criterion)" if lang == "en" else "📎 Ajouter une capture d'écran de l'interface (optionnel — pour le critère 3D)"
     uploaded_image = st.file_uploader(img_label, type=["png", "jpg", "jpeg"], key="img_upload", label_visibility="visible")
 
     if st.button(t["button"], key="btn_single"):
@@ -405,7 +410,7 @@ with tab1:
                 if uploaded_image:
                     import base64
                     image_b64 = base64.b64encode(uploaded_image.read()).decode("utf-8")
-                evaluation = evaluate_response(single_prompt, single_response, language=lang, image_b64=image_b64)
+                evaluation = evaluate_response(single_prompt, single_response, language=lang, image_b64=image_b64, user_comment=user_comment)
             try:
                 from json_repair import repair_json
                 data = json.loads(repair_json(evaluation))
