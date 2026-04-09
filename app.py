@@ -394,7 +394,7 @@ with tab1:
         single_response = st.text_area("r", height=180, placeholder=t["placeholder_single_response"], label_visibility="collapsed")
 
     # Optional image upload
-    img_label = "📎 Add a screenshot of the interface (optional — for 3D criterion)" if lang == "en" else "📎 Ajouter une capture d'écran de l'interface (optionnel — pour le critère 3D)"
+    img_label = "📎📎Optional : Add screenshots/images" if lang == "en" else "📎Optionnel : Ajouter des images"
     uploaded_image = st.file_uploader(img_label, type=["png", "jpg", "jpeg"], key="img_upload", label_visibility="visible")
 
     if st.button(t["button"], key="btn_single"):
