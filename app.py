@@ -354,11 +354,44 @@ st.markdown(f"""
 t = T[lang]
 
 # Disclaimer banner
-with st.expander("🚧 " + ("Work in progress — click to read" if lang == "en" else "En cours de développement — cliquez pour lire")):
-    if lang == "en":
-        st.markdown("Tool in active development — but fully usable! Continuously improving for a better experience. Your feedback is welcome, enjoy! 😊<br>— *Margaux Lebecque*, UX Designer apprentice @ SIMULIA", unsafe_allow_html=True)
-    else:
-        st.markdown("L'outil est toujours en production mais reste utilisable ! Il est en amélioration continue pour une meilleure utilisation. Vos retours sont les bienvenus, enjoy ! 😊<br>— *Margaux Lebecque*, alternante UX Designer @ SIMULIA", unsafe_allow_html=True)
+if "disclaimer_open" not in st.session_state:
+    st.session_state.disclaimer_open = True
+
+if st.session_state.disclaimer_open:
+    disclaimer_text = (
+        "🚧 <strong>Tool in active development</strong> — but fully usable! Continuously improving for a better experience. Your feedback is welcome, enjoy! <br>"
+        "<span style='opacity:0.8'>— <em>Margaux Lebecque</em>, UX Designer apprentice at SIMULIA</span>"
+    ) if lang == "en" else (
+        "🚧 <strong>L'outil est toujours en production</strong> mais reste utilisable ! Il est en amélioration continue pour une meilleure utilisation. Vos retours sont les bienvenus, enjoy ! <br>"
+        "<span style='opacity:0.8'>— <em>Margaux Lebecque</em>, alternante UX Designer chez SIMULIA</span>"
+    )
+   
+    ok_label = "OK, got it ✓" if lang == "en" else "OK, compris ✓"
+    col_disc, col_btn = st.columns([8, 1])
+    with col_disc:
+        st.markdown(f"""
+        <div style="background:#0a1a3a;border:1px solid #0050c8;border-radius:10px;padding:0.9rem 1.3rem;font-family:'Inter',sans-serif;font-size:0.85rem;color:white;line-height:1.6;">
+          {disclaimer_text}
+        </div>
+        """, unsafe_allow_html=True)
+    with col_btn:
+        if st.button(ok_label, key="close_disclaimer"):
+            st.session_state.disclaimer_open = False
+            st.rerun()
+else:
+    reopen_label = "ℹ️ About" if lang == "en" else "ℹ️ À propos"
+    if st.button(reopen_label, key="open_disclaimer"):
+        st.session_state.disclaimer_open = True
+        st.rerun()
+
+st.markdown(f"""
+<div class="hero">
+  <div class="hero-badge"><span class="dot"></span> {t["badge"]}</div>
+  <div class="hero-title">{t["title_line1"]}<br><span class="accent">{t["title_line2"]}</span></div>
+  <div class="hero-subtitle">{t["subtitle"]}</div>
+  <span class="hero-link">{t["link"]}</span>
+</div>
+""", unsafe_allow_html=True)
 
 # Tabs
 tab1, tab2 = st.tabs([t["tab_single"], t["tab_multi"]])
