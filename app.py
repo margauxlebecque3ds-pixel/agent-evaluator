@@ -354,7 +354,7 @@ st.markdown(f"""
 t = T[lang]
 
 # Disclaimer
-expander_label = "🚧 Work in progress — click to read" if lang == "en" else "🚧 En cours de développement — cliquez pour lire"
+expander_label = "🛠️ About this tool" if lang == "en" else "🛠️ A propos de l'outil"
 with st.expander(expander_label):
     if lang == "en":
         st.markdown(
