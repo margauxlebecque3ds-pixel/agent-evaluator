@@ -194,8 +194,8 @@ T = {
         "link": '<a href="https://raw.githubusercontent.com/margauxlebecque3ds-pixel/agent-evaluator/master/10heuristics.pdf" target="_blank" style="color:#4d8bff;text-decoration:none;">See the 10 heuristics list in details →</a>',
         "label_prompt": "USER QUESTION",
         "label_response": "LEO'S RESPONSE",
-        "label_comment": "💬 ADD A COMMENT (OPTIONAL)",
-        "label_screenshot": "📎 ADD A SCREENSHOT (OPTIONAL — FOR 3D CRITERION)",
+        "label_comment": "ADD A COMMENT (OPTIONAL)",
+        "label_screenshot": "ADD A SCREENSHOT (OPTIONAL — FOR 3D CRITERION)",
         "label_conversation": "PASTE CONVERSATION",
         "placeholder_prompt": "Paste the question asked to LEO…",
         "placeholder_response": "Paste LEO's response…",
@@ -218,8 +218,8 @@ T = {
         "warning": "⚠️ Please fill in the fields before running the evaluation.",
         "error": "Error",
         "export": "📥 Export to Excel",
-        "disclaimer": "🚧 Work in progress — click to read",
-        "disclaimer_text": "Tool in active development — but fully usable! Continuously improving for a better experience. Your feedback is welcome, enjoy! 😊<br>— <em>Margaux Lebecque</em>, UX Designer apprentice @ SIMULIA",
+        "disclaimer": "🏷️ About this tool",
+        "disclaimer_text": "Tool in active development but fully usable! Continuously improving for a better experience. Your feedback is welcome, enjoy! <br>— <em>Margaux Lebecque</em>, UX Designer apprentice @ SIMULIA",
     },
     "fr": {
         "badge": "Évaluation UX par IA",
@@ -229,8 +229,8 @@ T = {
         "link": '<a href="https://raw.githubusercontent.com/margauxlebecque3ds-pixel/agent-evaluator/master/10heuritiques.pdf" target="_blank" style="color:#4d8bff;text-decoration:none;">Voir la liste des 10 heuristiques en détail →</a>',
         "label_prompt": "QUESTION UTILISATEUR",
         "label_response": "RÉPONSE DE LEO",
-        "label_comment": "💬 AJOUTER UN COMMENTAIRE (OPTIONNEL)",
-        "label_screenshot": "📎 AJOUTER UNE CAPTURE D'ÉCRAN (OPTIONNEL — CRITÈRE 3D)",
+        "label_comment": "AJOUTER UN COMMENTAIRE (OPTIONNEL)",
+        "label_screenshot": "AJOUTER UNE CAPTURE D'ÉCRAN (OPTIONNEL)",
         "label_conversation": "COLLER LA CONVERSATION",
         "placeholder_prompt": "Collez la question posée à LEO…",
         "placeholder_response": "Collez la réponse de LEO…",
@@ -253,8 +253,8 @@ T = {
         "warning": "⚠️ Remplis les champs avant de lancer l'évaluation.",
         "error": "Erreur",
         "export": "📥 Exporter en Excel",
-        "disclaimer": "🚧 En cours de développement — cliquez pour lire",
-        "disclaimer_text": "L'outil est toujours en production mais reste utilisable ! Il est en amélioration continue pour une meilleure utilisation. Vos retours sont les bienvenus, enjoy ! 😊<br>— <em>Margaux Lebecque</em>, alternante UX Designer @ SIMULIA",
+        "disclaimer": "🏷️ A propos de l'outil",
+        "disclaimer_text": "L'outil est toujours en production mais reste utilisable ! Il est en amélioration continue pour une meilleure utilisation. Vos retours sont les bienvenus, enjoy ! <br>— <em>Margaux Lebecque</em>, UX Designer apprentice @ SIMULIA",
     }
 }
 
