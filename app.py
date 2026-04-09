@@ -398,7 +398,7 @@ with tab1:
     # Optional comment
     comment_label = "💬 ADD A COMMENT (OPTIONAL)" if lang == "en" else "💬 AJOUTER UN COMMENTAIRE (OPTIONNEL)"
     st.markdown(f'<div class="form-label">{comment_label}</div>', unsafe_allow_html=True)
-    user_comment = st.text_area("comment", height=80, placeholder=("E.g. LEO highlighted the mesh zone in red after my request…" if lang == "en" else "Ex : LEO a mis en évidence la zone de mesh en rouge après ma demande…"), key="user_comment", label_visibility="collapsed")
+    user_comment = st.text_area("_comment_", height=80, placeholder=("E.g. LEO highlighted the mesh zone in red after my request…" if lang == "en" else "Ex : LEO a mis en évidence la zone de mesh en rouge après ma demande…"), key="user_comment", label_visibility="collapsed")
 
     # Optional image upload
     img_label = "📎 Add a screenshot of the interface (optional — for 3D criterion)" if lang == "en" else "📎 Ajouter une capture d'écran de l'interface (optionnel — pour le critère 3D)"
