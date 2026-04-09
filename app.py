@@ -32,7 +32,6 @@ def format_text(text):
     return text
 
 def display_results(data, res_lang, n_ex):
-    """Display evaluation results for a given dataset."""
     res_t = T[res_lang]
     mode_badge = f" &nbsp;<span style='font-size:0.75rem;background:#0a1a3a;border:1px solid #0050c8;color:#4d8bff;padding:2px 10px;border-radius:20px;font-family:Space Mono,monospace;'>{n_ex} exchange{'s' if n_ex > 1 else ''}</span>" if n_ex > 1 else ""
     st.markdown(f'<div class="results-title">{res_t["results_title"]}{mode_badge}</div>', unsafe_allow_html=True)
@@ -193,16 +192,18 @@ T = {
         "title_line2": "responses",
         "subtitle": "The virtual companion by Dassault Systèmes",
         "link": '<a href="https://raw.githubusercontent.com/margauxlebecque3ds-pixel/agent-evaluator/master/10heuristics.pdf" target="_blank" style="color:#4d8bff;text-decoration:none;">See the 10 heuristics list in details →</a>',
-        "label_single_prompt": "USER QUESTION",
-        "label_single_response": "LEO'S RESPONSE",
+        "label_prompt": "USER QUESTION",
+        "label_response": "LEO'S RESPONSE",
+        "label_comment": "💬 ADD A COMMENT (OPTIONAL)",
+        "label_screenshot": "📎 ADD A SCREENSHOT (OPTIONAL — FOR 3D CRITERION)",
         "label_conversation": "PASTE CONVERSATION",
-        "placeholder_single_prompt": "Paste the question asked to LEO…",
-        "placeholder_single_response": "Paste LEO's response…",
+        "placeholder_prompt": "Paste the question asked to LEO…",
+        "placeholder_response": "Paste LEO's response…",
+        "placeholder_comment": "E.g. LEO highlighted the mesh zone in red after my request…",
         "placeholder_conversation": "Paste the full conversation here (copy/paste from SIMULIA)…",
         "tab_single": "Single exchange",
         "tab_multi": "Full conversation",
         "exchanges_detected": "exchanges detected",
-        "exchange_detected": "exchange detected",
         "button": "⚡ Run Evaluation",
         "spinner": "Evaluating…",
         "results_title": "Criteria Details",
@@ -211,12 +212,14 @@ T = {
         "suggestions_title": "🌐 Global Improvement Suggestions",
         "observed": "Observed",
         "justification": "Justification",
-        "problematic": "⚠️ Problematic exchange",
+        "problematic": "Problematic exchange",
         "advice": "Advice",
         "na": "N/A",
         "warning": "⚠️ Please fill in the fields before running the evaluation.",
         "error": "Error",
         "export": "📥 Export to Excel",
+        "disclaimer": "🚧 Work in progress — click to read",
+        "disclaimer_text": "Tool in active development — but fully usable! Continuously improving for a better experience. Your feedback is welcome, enjoy! 😊<br>— <em>Margaux Lebecque</em>, UX Designer apprentice @ SIMULIA",
     },
     "fr": {
         "badge": "Évaluation UX par IA",
@@ -224,16 +227,18 @@ T = {
         "title_line2": "de LEO",
         "subtitle": "Le virtual companion de Dassault Systèmes",
         "link": '<a href="https://raw.githubusercontent.com/margauxlebecque3ds-pixel/agent-evaluator/master/10heuritiques.pdf" target="_blank" style="color:#4d8bff;text-decoration:none;">Voir la liste des 10 heuristiques en détail →</a>',
-        "label_single_prompt": "QUESTION UTILISATEUR",
-        "label_single_response": "RÉPONSE DE LEO",
+        "label_prompt": "QUESTION UTILISATEUR",
+        "label_response": "RÉPONSE DE LEO",
+        "label_comment": "💬 AJOUTER UN COMMENTAIRE (OPTIONNEL)",
+        "label_screenshot": "📎 AJOUTER UNE CAPTURE D'ÉCRAN (OPTIONNEL — CRITÈRE 3D)",
         "label_conversation": "COLLER LA CONVERSATION",
-        "placeholder_single_prompt": "Collez la question posée à LEO…",
-        "placeholder_single_response": "Collez la réponse de LEO…",
+        "placeholder_prompt": "Collez la question posée à LEO…",
+        "placeholder_response": "Collez la réponse de LEO…",
+        "placeholder_comment": "Ex : LEO a mis en évidence la zone de mesh en rouge après ma demande…",
         "placeholder_conversation": "Collez la conversation complète ici (copier/coller depuis SIMULIA)…",
         "tab_single": "Échange unique",
         "tab_multi": "Conversation complète",
         "exchanges_detected": "échanges détectés",
-        "exchange_detected": "échange détecté",
         "button": "⚡ Lancer l'évaluation",
         "spinner": "Évaluation en cours…",
         "results_title": "Détail des critères",
@@ -242,12 +247,14 @@ T = {
         "suggestions_title": "🌐 Suggestions d'amélioration globales",
         "observed": "Observé",
         "justification": "Justification",
-        "problematic": "⚠️ Échange problématique",
+        "problematic": "Échange problématique",
         "advice": "Conseil",
         "na": "N/A",
         "warning": "⚠️ Remplis les champs avant de lancer l'évaluation.",
         "error": "Erreur",
         "export": "📥 Exporter en Excel",
+        "disclaimer": "🚧 En cours de développement — cliquez pour lire",
+        "disclaimer_text": "L'outil est toujours en production mais reste utilisable ! Il est en amélioration continue pour une meilleure utilisation. Vos retours sont les bienvenus, enjoy ! 😊<br>— <em>Margaux Lebecque</em>, alternante UX Designer @ SIMULIA",
     }
 }
 
@@ -265,7 +272,7 @@ st.markdown(f"""
   .accent {{ color:#4d8bff; }}
   .hero-subtitle {{ font-family:'Inter',sans-serif; font-size:1rem; color:#aaa; margin-bottom:1rem; }}
   .hero-link {{ font-family:'Inter',sans-serif; font-size:0.85rem; color:#4d8bff; }}
-  .form-label {{ font-family:'Space Mono',monospace; font-size:0.72rem; letter-spacing:0.12em; color:#aaa; text-transform:uppercase; margin-bottom:0.5rem; }}
+  .form-label {{ font-family:'Space Mono',monospace; font-size:0.72rem; letter-spacing:0.12em; color:#aaa; text-transform:uppercase; margin-bottom:0.5rem; margin-top:1rem; }}
   .exchange-badge {{ display:inline-flex; align-items:center; gap:0.4rem; padding:0.3rem 0.9rem; border-radius:20px; font-family:'Space Mono',monospace; font-size:0.75rem; font-weight:700; margin-bottom:1rem; }}
   .badge-multi {{ background:#0a1a3a; border:1px solid #0050c8; color:#4d8bff; }}
   .badge-single {{ background:#111; border:1px solid #2a2a2a; color:#888; }}
@@ -273,21 +280,6 @@ st.markdown(f"""
   textarea {{ background:#111 !important; border:1px solid #2a2a2a !important; border-radius:10px !important; color:#e0e0e0 !important; font-family:'Space Mono',monospace !important; font-size:0.85rem !important; }}
   textarea::placeholder {{ color:#555 !important; }}
   textarea:focus {{ border-color:#0050c8 !important; box-shadow:0 0 0 2px rgba(0,80,200,0.15) !important; outline:none !important; }}
-  /* Override Streamlit red focus on all inputs */
-  [data-baseweb="input"]:focus-within,
-  [data-baseweb="textarea"]:focus-within {{
-    border-color:#0050c8 !important;
-    box-shadow:0 0 0 2px rgba(0,80,200,0.15) !important;
-  }}
-  /* Mode switcher active tab underline */
-  button[data-testid="baseButton-secondary"]:focus {{
-    border-color:#0050c8 !important;
-    box-shadow:none !important;
-    outline:none !important;
-  }}
-  /* Red line under tabs -> blue */
-  [data-testid="stMarkdownContainer"] hr {{ display:none; }}
-  div[role="tab"][aria-selected="true"] {{ border-bottom:2px solid #0050c8 !important; }}
   .lang-pills {{ display:flex; gap:8px; justify-content:flex-end; padding-top:0.9rem; }}
   .lang-pill {{ display:inline-flex; align-items:center; gap:6px; padding:4px 10px 4px 6px; border-radius:20px; font-family:'Space Mono',monospace; font-size:0.72rem; font-weight:700; letter-spacing:0.05em; text-decoration:none; cursor:pointer; transition:all 0.15s; }}
   .lang-pill img {{ width:20px; height:14px; object-fit:cover; border-radius:3px; display:block; }}
@@ -318,27 +310,13 @@ st.markdown(f"""
   .suggestions-box h3 {{ font-family:'Inter',sans-serif; color:#4d8bff; font-size:1rem; margin-bottom:1rem; }}
   .suggestions-box li {{ font-family:'Inter',sans-serif; font-size:0.92rem; color:#c0c0c0; margin-bottom:0.5rem; line-height:1.7; }}
   div[data-testid="stTabs"] button {{ font-family:'Space Mono',monospace !important; font-size:0.78rem !important; color:#aaa !important; }}
-  div[data-testid="stTabs"] button[aria-selected="true"] {{ color:white !important; border-bottom:2px solid #0050c8 !important; }}
+  div[data-testid="stTabs"] button[aria-selected="true"] {{ color:white !important; }}
+  .stTabs [data-baseweb="tab-highlight"] {{ background-color:#0050c8 !important; }}
   #MainMenu, footer, header {{ visibility:hidden; }}
   .block-container {{ padding-top:0 !important; }}
   label {{ display:none !important; }}
-  .stTextArea label {{ display:none !important; }}
-  .stTextArea > label {{ display:none !important; }}
-  p:has(+ .stTextArea) {{ display:none !important; }}
-  [data-testid="stFileUploader"] label {{ display:block !important; color:#aaa !important; font-family:'Space Mono',monospace !important; font-size:0.72rem !important; letter-spacing:0.12em !important; text-transform:uppercase !important; }}
-  [data-testid="stTextArea"] label {{ display:block !important; color:#aaa !important; font-family:'Space Mono',monospace !important; font-size:0.72rem !important; letter-spacing:0.12em !important; text-transform:uppercase !important; }}
-  [data-testid="stTextArea"][aria-label*="comment"] label, [data-testid="stTextArea"][aria-label*="commentaire"] label {{ display:block !important; color:#aaa !important; font-family:'Space Mono',monospace !important; font-size:0.72rem !important; }}
   hr {{ display:none; }}
-
-  /* Override Streamlit red accent with blue */
-  .stTabs [data-baseweb="tab-highlight"] {{ background-color: #0050c8 !important; }}
-  .stTabs [data-baseweb="tab"] {{ color: #aaa !important; font-family:'Space Mono',monospace !important; font-size:0.8rem !important; }}
-  .stTabs [aria-selected="true"] {{ color: white !important; }}
-  textarea:focus {{ border-color: #0050c8 !important; box-shadow: 0 0 0 2px rgba(0,80,200,0.15) !important; outline: none !important; }}
-  input:focus {{ border-color: #0050c8 !important; box-shadow: 0 0 0 2px rgba(0,80,200,0.15) !important; }}
-  [data-baseweb="input"]:focus-within {{ border-color: #0050c8 !important; }}
-  :root {{ --primary: #0050c8 !important; }}
-  .stButton > button:focus {{ border-color: #0050c8 !important; box-shadow: 0 0 0 2px rgba(0,80,200,0.15) !important; }}
+  :root {{ --primary:#0050c8 !important; }}
 </style>
 """, unsafe_allow_html=True)
 
@@ -360,23 +338,10 @@ st.markdown(f"""
 t = T[lang]
 
 # Disclaimer
-expander_label = "🚧 Work in progress — click to read" if lang == "en" else "🚧 En cours de développement — cliquez pour lire"
-with st.expander(expander_label):
-    if lang == "en":
-        st.markdown(
-            "Tool in active development — but fully usable! Continuously improving for a better experience. "
-            "Your feedback is welcome, enjoy! 😊<br>"
-            "— *Margaux Lebecque*, UX Designer apprentice @ SIMULIA",
-            unsafe_allow_html=True
-        )
-    else:
-        st.markdown(
-            "L'outil est toujours en production mais reste utilisable ! Il est en amélioration continue "
-            "pour une meilleure utilisation. Vos retours sont les bienvenus, enjoy ! 😊<br>"
-            "— *Margaux Lebecque*, alternante UX Designer @ SIMULIA",
-            unsafe_allow_html=True
-        )
+with st.expander(t["disclaimer"]):
+    st.markdown(t["disclaimer_text"], unsafe_allow_html=True)
 
+# Hero
 st.markdown(f"""
 <div class="hero">
   <div class="hero-badge"><span class="dot"></span> {t["badge"]}</div>
@@ -392,25 +357,21 @@ tab1, tab2 = st.tabs([t["tab_single"], t["tab_multi"]])
 with tab1:
     col1, col2 = st.columns(2)
     with col1:
-        st.markdown(f'<div class="form-label">{t["label_single_prompt"]}</div>', unsafe_allow_html=True)
-        single_prompt = st.text_area("_q_", height=180, placeholder=t["placeholder_single_prompt"], label_visibility="collapsed")
+        st.markdown(f'<div class="form-label">{t["label_prompt"]}</div>', unsafe_allow_html=True)
+        single_prompt = st.text_area("single_prompt", height=180, placeholder=t["placeholder_prompt"], label_visibility="collapsed")
     with col2:
-        st.markdown(f'<div class="form-label">{t["label_single_response"]}</div>', unsafe_allow_html=True)
-        single_response = st.text_area("_r_", height=180, placeholder=t["placeholder_single_response"], label_visibility="collapsed")
+        st.markdown(f'<div class="form-label">{t["label_response"]}</div>', unsafe_allow_html=True)
+        single_response = st.text_area("single_response", height=180, placeholder=t["placeholder_response"], label_visibility="collapsed")
 
-    # Optional comment
-    comment_label = "💬 ADD A COMMENT (OPTIONAL)" if lang == "en" else "💬 AJOUTER UN COMMENTAIRE (OPTIONNEL)"
-    st.markdown(f'<div class="form-label">{comment_label}</div>', unsafe_allow_html=True)
-    user_comment = st.text_area("_comment_", height=80, placeholder=("E.g. LEO highlighted the mesh zone in red after my request…" if lang == "en" else "Ex : LEO a mis en évidence la zone de mesh en rouge après ma demande…"), key="user_comment", label_visibility="collapsed")
+    st.markdown(f'<div class="form-label">{t["label_comment"]}</div>', unsafe_allow_html=True)
+    user_comment = st.text_area("user_comment", height=80, placeholder=t["placeholder_comment"], label_visibility="collapsed")
 
-    # Optional image upload
-    img_label = "📎 Add a screenshot of the interface (optional — for 3D criterion)" if lang == "en" else "📎 Ajouter une capture d'écran de l'interface (optionnel — pour le critère 3D)"
-    uploaded_image = st.file_uploader(img_label, type=["png", "jpg", "jpeg"], key="img_upload", label_visibility="visible")
+    st.markdown(f'<div class="form-label">{t["label_screenshot"]}</div>', unsafe_allow_html=True)
+    uploaded_image = st.file_uploader("screenshot", type=["png", "jpg", "jpeg"], key="img_upload", label_visibility="collapsed")
 
     if st.button(t["button"], key="btn_single"):
         if single_prompt and single_response:
             with st.spinner(t["spinner"]):
-                # Encode image if provided
                 image_b64 = None
                 if uploaded_image:
                     import base64
@@ -429,7 +390,6 @@ with tab1:
         else:
             st.warning(t["warning"])
 
-    # Show single results inside tab1
     if "last_results_single" in st.session_state and st.session_state["last_results_single"]:
         display_results(
             st.session_state["last_results_single"],
@@ -439,10 +399,8 @@ with tab1:
 
 with tab2:
     st.markdown(f'<div class="form-label">{t["label_conversation"]}</div>', unsafe_allow_html=True)
+    conv_input = st.text_area("conv_input", height=280, placeholder=t["placeholder_conversation"], label_visibility="collapsed")
 
-    conv_input = st.text_area("conv", height=280, placeholder=t["placeholder_conversation"], label_visibility="collapsed")
-
-    # Live detection badge
     if conv_input:
         pairs = parse_conversation(conv_input)
         if pairs and len(pairs) > 1:
@@ -469,7 +427,6 @@ with tab2:
         else:
             st.warning(t["warning"])
 
-    # Show multi results inside tab2
     if "last_results_multi" in st.session_state and st.session_state["last_results_multi"]:
         display_results(
             st.session_state["last_results_multi"],
