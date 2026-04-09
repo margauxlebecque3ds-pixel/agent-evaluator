@@ -353,8 +353,35 @@ st.markdown(f"""
 
 t = T[lang]
 
-disclaimer = "🚧 Tool in active development — fully usable! Feedback welcome 😊 — <em>Margaux Lebecque, apprentice @ SIMULIA</em>" if lang == "en" else "🚧 Outil en cours de développement — utilisable ! Vos retours sont bienvenus 😊 — <em>Margaux Lebecque, alternante @ SIMULIA</em>"
-st.markdown(f'''<div style="font-family:'Space Mono',monospace;font-size:0.7rem;color:#555;background:#0d0d0d;border:1px solid #1e1e1e;border-radius:8px;padding:0.4rem 0.9rem;display:inline-block;margin-bottom:1rem;">''' + disclaimer + '''</div>''', unsafe_allow_html=True)
+# Disclaimer banner
+if "disclaimer_open" not in st.session_state:
+    st.session_state.disclaimer_open = True
+
+if st.session_state.disclaimer_open:
+    disclaimer_text = (
+        "🚧 <strong>Work in progress</strong> — fully usable! Feedback is very welcome 😊<br>"
+        "<span style='opacity:0.8'>Made with ❤️ by <em>Margaux Lebecque</em>, apprentice @ SIMULIA · Dassault Systèmes</span>"
+    ) if lang == "en" else (
+        "🚧 <strong>Outil en cours de développement</strong> — utilisable ! Vos retours sont les bienvenus 😊<br>"
+        "<span style='opacity:0.8'>Fait avec ❤️ par <em>Margaux Lebecque</em>, alternante @ SIMULIA · Dassault Systèmes</span>"
+    )
+    ok_label = "OK, got it ✓" if lang == "en" else "OK, compris ✓"
+    col_disc, col_btn = st.columns([8, 1])
+    with col_disc:
+        st.markdown(f"""
+        <div style="background:#0a1a3a;border:1px solid #0050c8;border-radius:10px;padding:0.9rem 1.3rem;font-family:'Inter',sans-serif;font-size:0.85rem;color:white;line-height:1.6;">
+          {disclaimer_text}
+        </div>
+        """, unsafe_allow_html=True)
+    with col_btn:
+        if st.button(ok_label, key="close_disclaimer"):
+            st.session_state.disclaimer_open = False
+            st.rerun()
+else:
+    reopen_label = "ℹ️ About" if lang == "en" else "ℹ️ À propos"
+    if st.button(reopen_label, key="open_disclaimer"):
+        st.session_state.disclaimer_open = True
+        st.rerun()
 
 st.markdown(f"""
 <div class="hero">
