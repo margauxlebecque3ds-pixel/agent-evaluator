@@ -322,6 +322,9 @@ st.markdown(f"""
   #MainMenu, footer, header {{ visibility:hidden; }}
   .block-container {{ padding-top:0 !important; }}
   label {{ display:none !important; }}
+  .stTextArea label {{ display:none !important; }}
+  .stTextArea > label {{ display:none !important; }}
+  p:has(+ .stTextArea) {{ display:none !important; }}
   [data-testid="stFileUploader"] label {{ display:block !important; color:#aaa !important; font-family:'Space Mono',monospace !important; font-size:0.72rem !important; letter-spacing:0.12em !important; text-transform:uppercase !important; }}
   [data-testid="stTextArea"] label {{ display:block !important; color:#aaa !important; font-family:'Space Mono',monospace !important; font-size:0.72rem !important; letter-spacing:0.12em !important; text-transform:uppercase !important; }}
   [data-testid="stTextArea"][aria-label*="comment"] label, [data-testid="stTextArea"][aria-label*="commentaire"] label {{ display:block !important; color:#aaa !important; font-family:'Space Mono',monospace !important; font-size:0.72rem !important; }}
@@ -390,10 +393,10 @@ with tab1:
     col1, col2 = st.columns(2)
     with col1:
         st.markdown(f'<div class="form-label">{t["label_single_prompt"]}</div>', unsafe_allow_html=True)
-        single_prompt = st.text_area("q", height=180, placeholder=t["placeholder_single_prompt"], label_visibility="collapsed")
+        single_prompt = st.text_area("_q_", height=180, placeholder=t["placeholder_single_prompt"], label_visibility="collapsed")
     with col2:
         st.markdown(f'<div class="form-label">{t["label_single_response"]}</div>', unsafe_allow_html=True)
-        single_response = st.text_area("r", height=180, placeholder=t["placeholder_single_response"], label_visibility="collapsed")
+        single_response = st.text_area("_r_", height=180, placeholder=t["placeholder_single_response"], label_visibility="collapsed")
 
     # Optional comment
     comment_label = "💬 ADD A COMMENT (OPTIONAL)" if lang == "en" else "💬 AJOUTER UN COMMENTAIRE (OPTIONNEL)"
