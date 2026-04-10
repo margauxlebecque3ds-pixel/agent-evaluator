@@ -367,7 +367,7 @@ with tab1:
     user_comment = st.text_area("user_comment", height=80, placeholder=t["placeholder_comment"], label_visibility="collapsed")
 
     st.markdown(f'<div class="form-label">{t["label_screenshot"]}</div>', unsafe_allow_html=True)
-    uploaded_image = st.file_uploader("screenshot", type=["png", "jpg", "jpeg"], key="img_upload", label_visibility="collapsed")
+    uploaded_image = st.file_uploader("screenshot", type=["png", "jpg", "jpeg"], key="img_upload", label_visibility="collapsed", accept_multiple_files=True)
 
     if st.button(t["button"], key="btn_single"):
         if single_prompt and single_response:
@@ -375,7 +375,8 @@ with tab1:
                 image_b64 = None
                 if uploaded_image:
                     import base64
-                    image_b64 = base64.b64encode(uploaded_image.read()).decode("utf-8")
+                    images = uploaded_image if isinstance(uploaded_image, list) else [uploaded_image]
+                    image_b64 = [base64.b64encode(img.read()).decode("utf-8") for img in images]
                 evaluation = evaluate_response(single_prompt, single_response, language=lang, image_b64=image_b64, user_comment=user_comment)
             try:
                 from json_repair import repair_json
@@ -413,7 +414,7 @@ with tab2:
     conv_comment = st.text_area("conv_comment", height=80, placeholder=t["placeholder_comment"], label_visibility="collapsed")
 
     st.markdown(f'<div class="form-label">{t["label_screenshot"]}</div>', unsafe_allow_html=True)
-    conv_image = st.file_uploader("conv_screenshot", type=["png", "jpg", "jpeg"], key="conv_img_upload", label_visibility="collapsed")
+    conv_image = st.file_uploader("conv_screenshot", type=["png", "jpg", "jpeg"], key="conv_img_upload", label_visibility="collapsed", accept_multiple_files=True)
 
     if st.button(t["button"], key="btn_multi"):
         if conv_input:
@@ -421,7 +422,8 @@ with tab2:
                 conv_image_b64 = None
                 if conv_image:
                     import base64
-                    conv_image_b64 = base64.b64encode(conv_image.read()).decode("utf-8")
+                    images = conv_image if isinstance(conv_image, list) else [conv_image]
+                    conv_image_b64 = [base64.b64encode(img.read()).decode("utf-8") for img in images]
                 evaluation = evaluate_response("", "", language=lang, mode="multi", conversation_raw=conv_input, image_b64=conv_image_b64, user_comment=conv_comment)
             try:
                 from json_repair import repair_json
