@@ -254,7 +254,7 @@ T = {
         "error": "Erreur",
         "export": "📥 Exporter en Excel",
         "disclaimer": "🏷️ A propos de l'outil",
-        "disclaimer_text": "L'outil est toujours en production mais reste utilisable ! Il est en amélioration continue pour une meilleure utilisation. Vos retours sont les bienvenus, enjoy ! <br>— <em>Margaux Lebecque</em>, UX Designer apprentice @ SIMULIA",
+        "disclaimer_text": "L'outil est toujours en production mais reste utilisable ! Il est en amélioration continue pour une meilleure utilisation. Vos retours sont les bienvenus, enjoy ! <br>— <em>Margaux Lebecque</em>, alternante UX Designer @ SIMULIA",
     }
 }
 
@@ -409,10 +409,20 @@ with tab2:
         else:
             st.markdown(f'<div class="exchange-badge badge-single">{t["single_badge"]}</div>', unsafe_allow_html=True)
 
+    st.markdown(f'<div class="form-label">{t["label_comment"]}</div>', unsafe_allow_html=True)
+    conv_comment = st.text_area("conv_comment", height=80, placeholder=t["placeholder_comment"], label_visibility="collapsed")
+
+    st.markdown(f'<div class="form-label">{t["label_screenshot"]}</div>', unsafe_allow_html=True)
+    conv_image = st.file_uploader("conv_screenshot", type=["png", "jpg", "jpeg"], key="conv_img_upload", label_visibility="collapsed")
+
     if st.button(t["button"], key="btn_multi"):
         if conv_input:
             with st.spinner(t["spinner"]):
-                evaluation = evaluate_response("", "", language=lang, mode="multi", conversation_raw=conv_input)
+                conv_image_b64 = None
+                if conv_image:
+                    import base64
+                    conv_image_b64 = base64.b64encode(conv_image.read()).decode("utf-8")
+                evaluation = evaluate_response("", "", language=lang, mode="multi", conversation_raw=conv_input, image_b64=conv_image_b64, user_comment=conv_comment)
             try:
                 from json_repair import repair_json
                 data = json.loads(repair_json(evaluation))
